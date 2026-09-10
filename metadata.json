@@ -1,0 +1,6 @@
+{
+  "name": "Frostwave Siege",
+  "description": "2D arcade-platformer game with freeze-and-roll mechanics, original heroes, boss battles, and co-op gameplay.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
