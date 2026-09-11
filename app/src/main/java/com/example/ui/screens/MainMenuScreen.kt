@@ -341,7 +341,8 @@ fun MenuActionButton(
     onClick = onClick,
     modifier = Modifier
       .fillMaxWidth()
-      .height(64.dp)
+      .height(68.dp)
+      .border(1.5.dp, Color.White.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
       .testTag(testTag),
     colors = ButtonDefaults.buttonColors(
       containerColor = color,
@@ -356,15 +357,15 @@ fun MenuActionButton(
     ) {
       Box(
         modifier = Modifier
-          .size(40.dp)
-          .background(textColor.copy(alpha = 0.15f), RoundedCornerShape(10.dp)),
+          .size(44.dp)
+          .background(textColor.copy(alpha = 0.18f), RoundedCornerShape(12.dp)),
         contentAlignment = Alignment.Center
       ) {
         Icon(
           imageVector = icon,
           contentDescription = null,
           tint = textColor,
-          modifier = Modifier.size(24.dp)
+          modifier = Modifier.size(26.dp)
         )
       }
       Spacer(modifier = Modifier.width(14.dp))
@@ -378,9 +379,9 @@ fun MenuActionButton(
         )
         Text(
           text = subtitle,
-          fontSize = 11.sp,
-          fontWeight = FontWeight.Medium,
-          color = textColor.copy(alpha = 0.8f)
+          fontSize = 11.5.sp,
+          fontWeight = FontWeight.Bold,
+          color = textColor.copy(alpha = 0.85f)
         )
       }
     }
@@ -398,13 +399,13 @@ fun SecondaryMenuButton(
   OutlinedButton(
     onClick = onClick,
     modifier = modifier
-      .height(70.dp)
+      .height(72.dp)
       .testTag(testTag),
     colors = ButtonDefaults.outlinedButtonColors(
       containerColor = IceSurface,
       contentColor = Color.White
     ),
-    border = androidx.compose.foundation.BorderStroke(1.5.dp, IceBorder),
+    border = androidx.compose.foundation.BorderStroke(1.5.dp, NeonCyan.copy(alpha = 0.6f)),
     shape = RoundedCornerShape(14.dp)
   ) {
     Column(
@@ -415,13 +416,13 @@ fun SecondaryMenuButton(
         imageVector = icon,
         contentDescription = null,
         tint = NeonCyan,
-        modifier = Modifier.size(20.dp)
+        modifier = Modifier.size(22.dp)
       )
       Spacer(modifier = Modifier.height(4.dp))
       Text(
         text = text,
-        fontSize = 10.sp,
-        fontWeight = FontWeight.Bold,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Black,
         fontFamily = FontFamily.Monospace,
         textAlign = TextAlign.Center
       )

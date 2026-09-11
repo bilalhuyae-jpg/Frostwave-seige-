@@ -161,21 +161,35 @@ fun GameScreen(
             .aspectRatio(targetRatio)
         }
 
-        Canvas(
+        Box(
           modifier = canvasModifier
-            .clip(RoundedCornerShape(10.dp))
-            .border(2.dp, ArcadeYellow.copy(alpha = 0.85f), RoundedCornerShape(10.dp))
-            .background(Color(0xFF040812))
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFF070E1A))
+            .border(
+              width = 2.dp,
+              brush = Brush.verticalGradient(
+                listOf(NeonCyan.copy(alpha = 0.9f), ArcadeYellow.copy(alpha = 0.85f))
+              ),
+              shape = RoundedCornerShape(12.dp)
+            )
+            .padding(2.dp)
         ) {
-          // Read frameTicker to guarantee Compose recomposition on each frame
-          @Suppress("UNUSED_VARIABLE")
-          val tick = frameTicker
-          GameRenderer.renderGame(
-            drawScope = this,
-            engine = engine,
-            scanlinesEnabled = scanlinesEnabled,
-            textMeasurer = textMeasurer
-          )
+          Canvas(
+            modifier = Modifier
+              .fillMaxSize()
+              .clip(RoundedCornerShape(10.dp))
+              .background(Color(0xFF040812))
+          ) {
+            // Read frameTicker to guarantee Compose recomposition on each frame
+            @Suppress("UNUSED_VARIABLE")
+            val tick = frameTicker
+            GameRenderer.renderGame(
+              drawScope = this,
+              engine = engine,
+              scanlinesEnabled = scanlinesEnabled,
+              textMeasurer = textMeasurer
+            )
+          }
         }
       }
 
@@ -238,105 +252,138 @@ fun TopArcadeHud(
     modifier = Modifier
       .fillMaxWidth()
       .padding(horizontal = 10.dp, vertical = 4.dp),
-    colors = CardDefaults.cardColors(containerColor = IceSurface.copy(alpha = 0.94f)),
-    shape = RoundedCornerShape(12.dp),
+    colors = CardDefaults.cardColors(containerColor = IceSurface.copy(alpha = 0.96f)),
+    shape = RoundedCornerShape(14.dp),
     border = androidx.compose.foundation.BorderStroke(1.5.dp, IceBorder)
   ) {
     Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-      // Row 1: Scores and Pause
+      // Row 1: Scores, Lives and Pause
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
         // 1P Score
-        Column {
-          Text(
-            text = "1P GLINT",
-            color = FrostMint,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Black,
-            fontFamily = FontFamily.Monospace,
-            letterSpacing = 1.sp
-          )
-          Text(
-            text = String.format(java.util.Locale.US, "%06d", p1Score),
-            color = Color.White,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.ExtraBold,
-            fontFamily = FontFamily.Monospace
-          )
-        }
-
-        // If 2-Player mode, display 2P score
-        if (engine.isTwoPlayer && p2 != null) {
-          Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+          modifier = Modifier
+            .background(AbyssMidnight, RoundedCornerShape(8.dp))
+            .border(1.dp, FrostMint.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+          Column {
             Text(
-              text = "2P EMBER",
-              color = CoralBlaze,
-              fontSize = 10.sp,
+              text = "1P GLINT",
+              color = FrostMint,
+              fontSize = 9.sp,
               fontWeight = FontWeight.Black,
               fontFamily = FontFamily.Monospace,
               letterSpacing = 1.sp
             )
             Text(
-              text = String.format(java.util.Locale.US, "%06d", p2Score),
+              text = String.format(java.util.Locale.US, "%06d", p1Score),
               color = Color.White,
-              fontSize = 15.sp,
+              fontSize = 16.sp,
               fontWeight = FontWeight.ExtraBold,
               fontFamily = FontFamily.Monospace
             )
           }
+        }
+
+        // If 2-Player mode, display 2P score
+        if (engine.isTwoPlayer && p2 != null) {
+          Box(
+            modifier = Modifier
+              .background(AbyssMidnight, RoundedCornerShape(8.dp))
+              .border(1.dp, CoralBlaze.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+              .padding(horizontal = 8.dp, vertical = 4.dp)
+          ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+              Text(
+                text = "2P EMBER",
+                color = CoralBlaze,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Black,
+                fontFamily = FontFamily.Monospace,
+                letterSpacing = 1.sp
+              )
+              Text(
+                text = String.format(java.util.Locale.US, "%06d", p2Score),
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
+                fontFamily = FontFamily.Monospace
+              )
+            }
+          }
         } else {
           // High Score
-          Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-              text = "HI-SCORE",
-              color = ArcadeYellow,
-              fontSize = 10.sp,
-              fontWeight = FontWeight.Bold,
-              fontFamily = FontFamily.Monospace,
-              letterSpacing = 1.sp
-            )
-            Text(
-              text = String.format(java.util.Locale.US, "%06d", highScore),
-              color = Color.White.copy(alpha = 0.95f),
-              fontSize = 14.sp,
-              fontWeight = FontWeight.Bold,
-              fontFamily = FontFamily.Monospace
-            )
+          Box(
+            modifier = Modifier
+              .background(AbyssMidnight, RoundedCornerShape(8.dp))
+              .border(1.dp, ArcadeYellow.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+              .padding(horizontal = 8.dp, vertical = 4.dp)
+          ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+              Text(
+                text = "HI-SCORE",
+                color = ArcadeYellow,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace,
+                letterSpacing = 1.sp
+              )
+              Text(
+                text = String.format(java.util.Locale.US, "%06d", highScore),
+                color = Color.White,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace
+              )
+            }
           }
         }
 
         // Lives and Pause
         Row(verticalAlignment = Alignment.CenterVertically) {
           Row(
-            horizontalArrangement = Arrangement.spacedBy(3.dp),
-            modifier = Modifier.padding(end = 8.dp)
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier
+              .background(AbyssMidnight, RoundedCornerShape(8.dp))
+              .border(1.dp, DangerEmber.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+              .padding(horizontal = 6.dp, vertical = 4.dp)
           ) {
-            for (i in 1..3) {
-              Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = "Life $i",
-                tint = if (i <= p1Lives) DangerEmber else Color.DarkGray,
-                modifier = Modifier.size(16.dp)
-              )
-            }
+            Icon(
+              imageVector = Icons.Default.Favorite,
+              contentDescription = "Lives",
+              tint = DangerEmber,
+              modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(2.dp))
+            Text(
+              text = "x$p1Lives",
+              color = Color.White,
+              fontSize = 13.sp,
+              fontWeight = FontWeight.Black,
+              fontFamily = FontFamily.Monospace
+            )
           }
+
+          Spacer(modifier = Modifier.width(6.dp))
 
           IconButton(
             onClick = onPauseClicked,
             modifier = Modifier
-              .size(34.dp)
+              .size(36.dp)
               .background(IceSurfaceElevated, CircleShape)
-              .border(1.dp, IceBorder, CircleShape)
+              .border(1.2.dp, NeonCyan.copy(alpha = 0.7f), CircleShape)
               .testTag("pause_button")
           ) {
             Icon(
               imageVector = Icons.Default.Pause,
               contentDescription = "Pause",
               tint = NeonCyan,
-              modifier = Modifier.size(18.dp)
+              modifier = Modifier.size(20.dp)
             )
           }
         }
@@ -346,37 +393,37 @@ fun TopArcadeHud(
       Row(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(top = 6.dp),
+          .padding(top = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
           Box(
             modifier = Modifier
-              .background(AbyssMidnight, RoundedCornerShape(4.dp))
-              .border(1.dp, NeonCyan.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
-              .padding(horizontal = 6.dp, vertical = 2.dp)
+              .background(AbyssMidnight, RoundedCornerShape(6.dp))
+              .border(1.2.dp, NeonCyan, RoundedCornerShape(6.dp))
+              .padding(horizontal = 8.dp, vertical = 3.dp)
           ) {
             Text(
               text = "STAGE ${engine.currentLevelIdx + 1}/300",
               color = NeonCyan,
-              fontSize = 10.sp,
+              fontSize = 11.sp,
               fontWeight = FontWeight.Black,
               fontFamily = FontFamily.Monospace
             )
           }
-          Spacer(modifier = Modifier.width(6.dp))
+          Spacer(modifier = Modifier.width(8.dp))
           Text(
             text = engine.currentLevel.name.uppercase(java.util.Locale.US),
-            color = Color.White.copy(alpha = 0.85f),
-            fontSize = 10.sp,
+            color = Color.White,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace,
             maxLines = 1
           )
         }
 
-        // FROST Letters Badges
+        // FROST Letters Badges with high contrast and active gold glow
         Row(
           horizontalArrangement = Arrangement.spacedBy(4.dp),
           verticalAlignment = Alignment.CenterVertically
@@ -386,22 +433,22 @@ fun TopArcadeHud(
             val collected = engine.collectedLetters.contains(ch)
             Box(
               modifier = Modifier
-                .size(20.dp)
+                .size(22.dp)
                 .background(
                   if (collected) ArcadeYellow else AbyssMidnight,
-                  RoundedCornerShape(4.dp)
+                  RoundedCornerShape(6.dp)
                 )
                 .border(
-                  1.dp,
-                  if (collected) Color.White else IceBorder.copy(alpha = 0.6f),
-                  RoundedCornerShape(4.dp)
+                  width = if (collected) 1.5.dp else 1.dp,
+                  color = if (collected) Color.White else IceBorder.copy(alpha = 0.7f),
+                  shape = RoundedCornerShape(6.dp)
                 ),
               contentAlignment = Alignment.Center
             ) {
               Text(
                 text = ch.toString(),
-                color = if (collected) AbyssMidnight else Color.Gray,
-                fontSize = 10.sp,
+                color = if (collected) AbyssMidnight else Color.LightGray,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Black,
                 fontFamily = FontFamily.Monospace
               )
