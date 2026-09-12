@@ -1,5 +1,7 @@
 package com.example.game
 
+import kotlin.math.roundToInt
+
 // Platform rectangle in virtual game coordinates
 data class Platform(
   val x: Float,
@@ -7,6 +9,37 @@ data class Platform(
   val width: Float,
   val height: Float = 12f,
   val isOneWay: Boolean = true
+)
+
+enum class ObstacleColor(val primaryColor: Long, val mouthGlow: Long, val displayName: String) {
+  GREEN(0xFF2ECC71, 0xFFFF5722, "Green Gargoyle"),   // Green fire-spitting totem (Matches user screenshot)
+  BLUE(0xFF29B6F6, 0xFF00E5FF, "Blue Frostbeast"),    // Blue frost totem
+  RED(0xFFE74C3C, 0xFFFF9800, "Red Emberclaw"),       // Red demon totem
+  YELLOW(0xFFFFCA28, 0xFFFF5722, "Golden Dragon")     // Gold beast totem
+}
+
+data class ObstacleHazard(
+  val id: Int,
+  val x: Float,
+  val y: Float,
+  val width: Float = 26f,
+  val height: Float = 26f,
+  val colorType: ObstacleColor = ObstacleColor.GREEN,
+  val facesRight: Boolean = true,
+  var attackTimer: Float = 0f,
+  var attackInterval: Float = 4.0f,
+  var isAttacking: Boolean = false,
+  var attackAnimTimer: Float = 0f
+)
+
+data class HazardFireball(
+  var x: Float,
+  var y: Float,
+  var vx: Float,
+  var vy: Float = 0f,
+  var radius: Float = 8.5f,
+  var lifeTime: Float = 2.8f,
+  val colorType: ObstacleColor = ObstacleColor.GREEN
 )
 
 enum class EnemyType {
@@ -103,6 +136,7 @@ data class LevelConfig(
   val isBossLevel: Boolean,
   val platforms: List<Platform>,
   val enemySpawns: List<EnemySpawn>,
+  val obstacleHazards: List<ObstacleHazard> = emptyList(),
   val theme: WorldTheme = WorldTheme.GLACIER_CAVERNS
 )
 
@@ -272,9 +306,95 @@ object LevelCatalog {
     val worldIndex = ((lvl - 1) / 50).coerceIn(0, 5)
     val theme = if (isBoss) WorldTheme.TITAN_THRONE else WorldTheme.entries[worldIndex]
 
-    // Platform layout
-    val archetypeIndex = if (isBoss) 3 else ((lvl - 1) * 3 + (lvl / 7)) % archetypes.size
-    val platforms = archetypes[archetypeIndex](lvl)
+    // Platform layout scaled with exact obstacle count (5 at level 1 up to 15 at level 300)
+    val targetObstacleCount = (5f + (lvl - 1) * 10f / 299f).roundToInt().coerceIn(5, 15)
+    val elevatedSlots = listOf(
+      Platform(x = 25f, y = 460f, width = 130f),
+      Platform(x = 245f, y = 460f, width = 130f),
+      Platform(x = 90f, y = 390f, width = 220f),
+      Platform(x = 20f, y = 320f, width = 120f),
+      Platform(x = 260f, y = 320f, width = 120f),
+      Platform(x = 110f, y = 250f, width = 180f),
+      Platform(x = 25f, y = 180f, width = 110f),
+      Platform(x = 265f, y = 180f, width = 110f),
+      Platform(x = 125f, y = 110f, width = 150f),
+      Platform(x = 160f, y = 460f, width = 80f),
+      Platform(x = 20f, y = 390f, width = 60f),
+      Platform(x = 320f, y = 390f, width = 60f),
+      Platform(x = 165f, y = 320f, width = 70f),
+      Platform(x = 135f, y = 50f, width = 130f)
+    )
+    val platforms = mutableListOf(baseFloor)
+    platforms.addAll(elevatedSlots.take(targetObstacleCount - 1))
+
+    // Obstacle Hazards (Wall gargoyles that attack, matching user's screenshot)
+    val obstacleHazards = mutableListOf<ObstacleHazard>()
+    // 1. Green Gargoyle (left wall, spits fire stream across stage)
+    obstacleHazards.add(
+      ObstacleHazard(
+        id = 1,
+        x = 16f,
+        y = 320f - 26f,
+        colorType = ObstacleColor.GREEN,
+        facesRight = true,
+        attackTimer = 0.8f,
+        attackInterval = 3.6f
+      )
+    )
+    // 2. Right wall totem (Blue Frostbeast)
+    obstacleHazards.add(
+      ObstacleHazard(
+        id = 2,
+        x = 358f,
+        y = 250f - 26f,
+        colorType = ObstacleColor.BLUE,
+        facesRight = false,
+        attackTimer = 2.4f,
+        attackInterval = 4.2f
+      )
+    )
+    if (lvl >= 15) {
+      // 3. Red Emberclaw (attacks from tier 4)
+      obstacleHazards.add(
+        ObstacleHazard(
+          id = 3,
+          x = 20f,
+          y = 180f - 26f,
+          colorType = ObstacleColor.RED,
+          facesRight = true,
+          attackTimer = 1.4f,
+          attackInterval = 4.0f
+        )
+      )
+    }
+    if (lvl >= 50) {
+      // 4. Golden Dragon (tier 2 right)
+      obstacleHazards.add(
+        ObstacleHazard(
+          id = 4,
+          x = 356f,
+          y = 390f - 26f,
+          colorType = ObstacleColor.YELLOW,
+          facesRight = false,
+          attackTimer = 3.0f,
+          attackInterval = 4.5f
+        )
+      )
+    }
+    if (lvl >= 100) {
+      // 5. Additional Green Gargoyle for intense arcade action
+      obstacleHazards.add(
+        ObstacleHazard(
+          id = 5,
+          x = 18f,
+          y = 460f - 26f,
+          colorType = ObstacleColor.GREEN,
+          facesRight = true,
+          attackTimer = 2.0f,
+          attackInterval = 3.8f
+        )
+      )
+    }
 
     // Stage Name Generation
     val name = when {
@@ -375,6 +495,7 @@ object LevelCatalog {
       isBossLevel = isBoss,
       platforms = platforms,
       enemySpawns = enemySpawns,
+      obstacleHazards = obstacleHazards,
       theme = theme
     )
   }

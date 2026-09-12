@@ -127,6 +127,8 @@ class GameEngine(
   val floatingTexts = mutableListOf<FloatingText>()
   val particles = mutableListOf<Particle>()
   val icicles = mutableListOf<FallingIcicle>()
+  val obstacleHazards = mutableListOf<ObstacleHazard>()
+  val hazardFireballs = mutableListOf<HazardFireball>()
 
   var nextEnemyId = 1
   var isPaused = false
@@ -191,6 +193,13 @@ class GameEngine(
     pickups.clear()
     floatingTexts.clear()
     icicles.clear()
+    obstacleHazards.clear()
+    hazardFireballs.clear()
+
+    // Populate active obstacle hazards from level
+    for (hazard in currentLevel.obstacleHazards) {
+      obstacleHazards.add(hazard.copy())
+    }
 
     // Reset player positions
     players.getOrNull(0)?.apply {
@@ -344,6 +353,8 @@ class GameEngine(
     updatePlayers(dt)
     updateProjectiles(dt)
     updateEnemies(dt)
+    updateObstacleHazards(dt)
+    updateHazardFireballs(dt)
     updateIcicles(dt)
     updatePickups(dt)
     updateParticles(dt)
@@ -706,6 +717,69 @@ class GameEngine(
     }
   }
 
+  private fun updateObstacleHazards(dt: Float) {
+    for (h in obstacleHazards) {
+      if (h.isAttacking) {
+        h.attackAnimTimer -= dt
+        if (h.attackAnimTimer <= 0f) {
+          h.isAttacking = false
+        }
+      }
+
+      h.attackTimer += dt
+      if (h.attackTimer >= h.attackInterval) {
+        h.attackTimer = 0f
+        h.isAttacking = true
+        h.attackAnimTimer = 0.65f
+
+        // Spit fireball/hazard shot from gargoyle mouth (matching screenshot)
+        val mouthX = if (h.facesRight) h.x + h.width + 4f else h.x - 4f
+        val mouthY = h.y + (h.height * 0.52f)
+        val speed = if (h.facesRight) 155f else -155f
+        hazardFireballs.add(
+          HazardFireball(
+            x = mouthX,
+            y = mouthY,
+            vx = speed,
+            colorType = h.colorType
+          )
+        )
+        spawnParticleBurst(mouthX, mouthY, h.colorType.mouthGlow, 8)
+        GameAudio.playSound(GameAudio.SoundEffect.BOSS_HIT)
+      }
+    }
+  }
+
+  private fun updateHazardFireballs(dt: Float) {
+    val iter = hazardFireballs.iterator()
+    while (iter.hasNext()) {
+      val fb = iter.next()
+      fb.lifeTime -= dt
+      fb.x += fb.vx * dt
+      fb.y += fb.vy * dt
+
+      // Trailing flame particles
+      if (Random.nextFloat() < 0.4f) {
+        particles.add(
+          Particle(
+            x = fb.x + (Random.nextFloat() * 4f - 2f),
+            y = fb.y + (Random.nextFloat() * 4f - 2f),
+            vx = -fb.vx * 0.12f,
+            vy = Random.nextFloat() * -18f,
+            color = fb.colorType.mouthGlow,
+            size = 3.2f,
+            life = 0.28f,
+            maxLife = 0.28f
+          )
+        )
+      }
+
+      if (fb.lifeTime <= 0f || fb.x < 2f || fb.x > LevelCatalog.GAME_WIDTH - 2f) {
+        iter.remove()
+      }
+    }
+  }
+
   private fun checkCollisions() {
     // 1. Projectiles vs Enemies
     val projIter = projectiles.iterator()
@@ -747,6 +821,29 @@ class GameEngine(
 
       if (consumed) {
         projIter.remove()
+      }
+    }
+
+    // 1b. Projectiles vs Hazard Fireballs (Extinguish attack!)
+    val fIter = hazardFireballs.iterator()
+    while (fIter.hasNext()) {
+      val fb = fIter.next()
+      var extinguished = false
+      val pIter = projectiles.iterator()
+      while (pIter.hasNext()) {
+        val proj = pIter.next()
+        val dist = kotlin.math.hypot(proj.x - fb.x, proj.y - fb.y)
+        if (dist < proj.radius + fb.radius) {
+          pIter.remove()
+          extinguished = true
+          spawnParticleBurst(fb.x, fb.y, 0xFFE0F7FA, 10)
+          addFloatingText("EXTINGUISHED!", fb.x - 24f, fb.y - 8f, 0xFF00E5FF)
+          GameAudio.playSound(GameAudio.SoundEffect.FREEZE_HIT)
+          break
+        }
+      }
+      if (extinguished) {
+        fIter.remove()
       }
     }
 
@@ -843,6 +940,20 @@ class GameEngine(
       for (ic in icicles) {
         if (ic.x > p.x && ic.x < p.x + p.width && ic.y > p.y && ic.y < p.y + p.height) {
           playerHit(p)
+          break
+        }
+      }
+
+      // Hazard Fireballs hit check (Green/Blue/Red obstacle attack)
+      val fbIter = hazardFireballs.iterator()
+      while (fbIter.hasNext()) {
+        val fb = fbIter.next()
+        val hit = fb.x > p.x - fb.radius && fb.x < p.x + p.width + fb.radius &&
+          fb.y > p.y - fb.radius && fb.y < p.y + p.height + fb.radius
+        if (hit) {
+          playerHit(p)
+          fbIter.remove()
+          spawnParticleBurst(fb.x, fb.y, fb.colorType.mouthGlow, 12)
           break
         }
       }

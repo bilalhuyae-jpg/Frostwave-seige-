@@ -101,6 +101,10 @@ class FrostwaveViewModel(application: Application) : AndroidViewModel(applicatio
       onLevelCleared = {
         _overlayState.value = GameplayOverlay.LEVEL_CLEAR
         GameAudio.playSound(GameAudio.SoundEffect.LEVEL_CLEAR)
+        viewModelScope.launch {
+          val completedLevel = gameEngine.currentLevel.levelNumber
+          repository.unlockNextLevel(completedLevel)
+        }
       },
       onGameOver = {
         _overlayState.value = GameplayOverlay.GAME_OVER

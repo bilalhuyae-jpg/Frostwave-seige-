@@ -26,7 +26,8 @@ data class GameSettingsEntity(
   val scanlinesEnabled: Boolean = true,
   val powerUpStart: Boolean = false,
   val screenFitAspect: Boolean = true, // true = 4:3 arcade boxed, false = stretch/full
-  val language: String = "English"
+  val language: String = "English",
+  val unlockedLevel: Int = 1 // Only Stage 1 unlocked initially! Levels unlock as user beats them
 )
 
 @Entity(tableName = "achievements")

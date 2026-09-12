@@ -27,6 +27,9 @@ interface GameSettingsDao {
   @Query("SELECT * FROM game_settings WHERE id = 1 LIMIT 1")
   fun getSettings(): Flow<GameSettingsEntity?>
 
+  @Query("SELECT * FROM game_settings WHERE id = 1 LIMIT 1")
+  suspend fun getSettingsDirect(): GameSettingsEntity?
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insertOrUpdate(settings: GameSettingsEntity)
 }

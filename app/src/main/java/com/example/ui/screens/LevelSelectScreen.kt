@@ -42,8 +42,10 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -78,9 +80,13 @@ import com.example.viewmodel.FrostwaveViewModel
 @Composable
 fun LevelSelectScreen(
   viewModel: FrostwaveViewModel,
-  onSelectLevel: (levelIndex: Int) -> Unit,
+  onSelectLevel: (levelIndex: Int, isTwoPlayer: Boolean) -> Unit,
   onBack: () -> Unit
 ) {
+  val settings by viewModel.settings.collectAsState(null)
+  val unlockedLevel = settings?.unlockedLevel ?: 1
+  var isTwoPlayerMode by remember { mutableStateOf(settings?.isTwoPlayer ?: false) }
+
   // Worlds: 6 Worlds x 50 stages = 300 Levels total
   // Within each world, group into 5 chapters of 10 levels each (or paging)
   var selectedWorldIndex by remember { mutableIntStateOf(0) }
@@ -146,15 +152,15 @@ fun LevelSelectScreen(
             color = IceWhite
           )
           Text(
-            text = "300 ARCADE CAMPAIGN LEVELS",
+            text = "UNLOCKED: $unlockedLevel / ${LevelCatalog.TOTAL_LEVELS} STAGES",
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace,
-            color = NeonCyan
+            color = if (unlockedLevel >= 300) ArcadeYellow else NeonCyan
           )
         }
 
-        // Total Levels Badge
+        // Unlocked Badge
         Box(
           modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
@@ -163,11 +169,66 @@ fun LevelSelectScreen(
             .padding(horizontal = 10.dp, vertical = 5.dp)
         ) {
           Text(
-            text = "300 STAGES",
+            text = "MAX L$unlockedLevel",
             fontSize = 11.sp,
             fontWeight = FontWeight.Black,
             fontFamily = FontFamily.Monospace,
             color = Color(currentWorld.accentColor)
+          )
+        }
+      }
+
+      // Mode Selector: 1 Player (Solo) vs 2 Players (Co-Op)
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Box(
+          modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (!isTwoPlayerMode) NeonCyan else IceSurface)
+            .border(1.dp, if (!isTwoPlayerMode) Color.White else IceBorder, RoundedCornerShape(10.dp))
+            .clickable {
+              isTwoPlayerMode = false
+              viewModel.updateSettings((settings ?: com.example.data.model.GameSettingsEntity()).copy(isTwoPlayer = false))
+            }
+            .padding(vertical = 7.dp)
+            .testTag("level_select_1p_mode"),
+          contentAlignment = Alignment.Center
+        ) {
+          Text(
+            text = "1 PLAYER (SOLO)",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Black,
+            fontFamily = FontFamily.Monospace,
+            color = if (!isTwoPlayerMode) AbyssMidnight else Color.White
+          )
+        }
+
+        Box(
+          modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (isTwoPlayerMode) ArcadeYellow else IceSurface)
+            .border(1.dp, if (isTwoPlayerMode) Color.White else IceBorder, RoundedCornerShape(10.dp))
+            .clickable {
+              isTwoPlayerMode = true
+              viewModel.updateSettings((settings ?: com.example.data.model.GameSettingsEntity()).copy(isTwoPlayer = true))
+            }
+            .padding(vertical = 7.dp)
+            .testTag("level_select_2p_mode"),
+          contentAlignment = Alignment.Center
+        ) {
+          Text(
+            text = "2 PLAYERS (CO-OP)",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Black,
+            fontFamily = FontFamily.Monospace,
+            color = if (isTwoPlayerMode) AbyssMidnight else Color.White
           )
         }
       }
@@ -359,13 +420,16 @@ fun LevelSelectScreen(
         items(levelRange.count()) { index ->
           val levelNumber = pageStartLevel + index
           val config = LevelCatalog.getLevel(levelNumber)
-          val isBoss = config.isBossLevel
+          val isUnlocked = (levelNumber <= unlockedLevel)
 
           LevelCard(
             config = config,
             worldTheme = currentWorld,
+            isUnlocked = isUnlocked,
             onClick = {
-              onSelectLevel(levelNumber - 1) // 0-based index
+              if (isUnlocked) {
+                onSelectLevel(levelNumber - 1, isTwoPlayerMode) // 0-based index
+              }
             }
           )
         }
@@ -378,23 +442,43 @@ fun LevelSelectScreen(
 private fun LevelCard(
   config: com.example.game.LevelConfig,
   worldTheme: WorldTheme,
+  isUnlocked: Boolean,
   onClick: () -> Unit
 ) {
   val isBoss = config.isBossLevel
-  val cardBorderColor = if (isBoss) DangerEmber else Color(worldTheme.accentColor).copy(alpha = 0.7f)
-  val badgeColor = if (isBoss) DangerEmber else Color(worldTheme.accentColor)
+  val cardBorderColor = if (!isUnlocked) {
+    Color(0xFF1E293B)
+  } else if (isBoss) {
+    DangerEmber
+  } else {
+    Color(worldTheme.accentColor).copy(alpha = 0.7f)
+  }
+
+  val badgeColor = if (!isUnlocked) {
+    TextMuted
+  } else if (isBoss) {
+    DangerEmber
+  } else {
+    Color(worldTheme.accentColor)
+  }
 
   Card(
     modifier = Modifier
       .fillMaxWidth()
       .aspectRatio(1.4f)
-      .clickable(onClick = onClick)
+      .clickable(enabled = isUnlocked, onClick = onClick)
       .testTag("level_card_${config.levelNumber}"),
     colors = CardDefaults.cardColors(
-      containerColor = if (isBoss) Color(0xFF2A1130) else IceSurface
+      containerColor = if (!isUnlocked) {
+        Color(0xFF090E17).copy(alpha = 0.85f)
+      } else if (isBoss) {
+        Color(0xFF2A1130)
+      } else {
+        IceSurface
+      }
     ),
     shape = RoundedCornerShape(14.dp),
-    border = androidx.compose.foundation.BorderStroke(if (isBoss) 2.dp else 1.2.dp, cardBorderColor)
+    border = androidx.compose.foundation.BorderStroke(if (isBoss && isUnlocked) 2.dp else 1.2.dp, cardBorderColor)
   ) {
     Column(
       modifier = Modifier
@@ -424,7 +508,14 @@ private fun LevelCard(
           )
         }
 
-        if (isBoss) {
+        if (!isUnlocked) {
+          Icon(
+            imageVector = Icons.Default.Lock,
+            contentDescription = "Locked",
+            tint = TextMuted,
+            modifier = Modifier.size(16.dp)
+          )
+        } else if (isBoss) {
           Box(
             modifier = Modifier
               .clip(RoundedCornerShape(6.dp))
@@ -450,13 +541,13 @@ private fun LevelCard(
         }
       }
 
-      // Middle: Stage Name
+      // Middle: Stage Name or Locked text
       Text(
-        text = config.name,
+        text = if (isUnlocked) config.name else "STAGE ${config.levelNumber} (LOCKED)",
         fontSize = 13.sp,
         fontWeight = FontWeight.Bold,
         fontFamily = FontFamily.Monospace,
-        color = IceWhite,
+        color = if (isUnlocked) IceWhite else TextMuted,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis
       )
@@ -467,29 +558,48 @@ private fun LevelCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          Icon(
-            imageVector = if (isBoss) Icons.Default.Bolt else Icons.Default.PlayArrow,
-            contentDescription = null,
-            tint = if (isBoss) DangerEmber else NeonCyan,
-            modifier = Modifier.size(14.dp)
-          )
-          Spacer(modifier = Modifier.width(4.dp))
-          Text(
-            text = if (isBoss) "CHALLENGE" else "START",
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Black,
-            fontFamily = FontFamily.Monospace,
-            color = if (isBoss) DangerEmber else NeonCyan
-          )
-        }
+        if (isUnlocked) {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+              imageVector = if (isBoss) Icons.Default.Bolt else Icons.Default.PlayArrow,
+              contentDescription = null,
+              tint = if (isBoss) DangerEmber else NeonCyan,
+              modifier = Modifier.size(14.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+              text = if (isBoss) "CHALLENGE" else "START",
+              fontSize = 10.sp,
+              fontWeight = FontWeight.Black,
+              fontFamily = FontFamily.Monospace,
+              color = if (isBoss) DangerEmber else NeonCyan
+            )
+          }
 
-        Text(
-          text = "${config.platforms.size} PLATFORMS",
-          fontSize = 9.sp,
-          fontFamily = FontFamily.Monospace,
-          color = TextMuted.copy(alpha = 0.7f)
-        )
+          Text(
+            text = "${config.platforms.size} PLATFORMS",
+            fontSize = 9.sp,
+            fontFamily = FontFamily.Monospace,
+            color = TextMuted.copy(alpha = 0.7f)
+          )
+        } else {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+              imageVector = Icons.Default.Lock,
+              contentDescription = null,
+              tint = TextMuted.copy(alpha = 0.6f),
+              modifier = Modifier.size(12.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+              text = "CLEAR L${config.levelNumber - 1} TO UNLOCK",
+              fontSize = 9.sp,
+              fontWeight = FontWeight.Bold,
+              fontFamily = FontFamily.Monospace,
+              color = TextMuted.copy(alpha = 0.7f)
+            )
+          }
+        }
       }
     }
   }

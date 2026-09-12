@@ -217,7 +217,10 @@ fun GameScreen(
           levelName = engine.currentLevel.name,
           currentScore = engine.players.firstOrNull()?.score ?: 0,
           collectedLetters = engine.collectedLetters,
-          onNextLevel = { viewModel.advanceToNextLevel() }
+          onNextLevel = { viewModel.advanceToNextLevel() },
+          onPlay1P = { viewModel.startNewGame(twoPlayer = false, powerUpStart = false, startLevel = 0) },
+          onPlay2P = { viewModel.startNewGame(twoPlayer = true, powerUpStart = false, startLevel = 0) },
+          onQuit = { viewModel.quitToMainMenu() }
         )
       }
       GameplayOverlay.GAME_OVER -> {

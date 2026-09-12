@@ -62,8 +62,8 @@ fun AppNavigation(
       ScreenDestination.LEVEL_SELECT -> {
         LevelSelectScreen(
           viewModel = viewModel,
-          onSelectLevel = { levelIndex ->
-            viewModel.startNewGame(twoPlayer = false, powerUpStart = false, startLevel = levelIndex)
+          onSelectLevel = { levelIndex, isTwoPlayer ->
+            viewModel.startNewGame(twoPlayer = isTwoPlayer, powerUpStart = false, startLevel = levelIndex)
           },
           onBack = {
             viewModel.navigateTo(ScreenDestination.MAIN_MENU)

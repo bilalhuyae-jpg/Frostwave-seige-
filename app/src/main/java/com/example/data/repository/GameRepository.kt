@@ -27,9 +27,20 @@ class GameRepository(private val database: AppDatabase) {
     database.gameSettingsDao().insertOrUpdate(settings)
   }
 
+  suspend fun unlockNextLevel(completedLevel: Int) {
+    val current = database.gameSettingsDao().getSettingsDirect() ?: GameSettingsEntity()
+    val nextLevel = (completedLevel + 1).coerceAtMost(300)
+    if (nextLevel > current.unlockedLevel) {
+      database.gameSettingsDao().insertOrUpdate(current.copy(unlockedLevel = nextLevel))
+    }
+  }
+
   suspend fun initializeDefaultsIfEmpty() {
-    val defaultSettings = GameSettingsEntity()
-    database.gameSettingsDao().insertOrUpdate(defaultSettings)
+    val existing = database.gameSettingsDao().getSettingsDirect()
+    if (existing == null) {
+      val defaultSettings = GameSettingsEntity(unlockedLevel = 1)
+      database.gameSettingsDao().insertOrUpdate(defaultSettings)
+    }
 
     val defaultAchievements = listOf(
       AchievementEntity(

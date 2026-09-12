@@ -81,17 +81,21 @@ object GameRenderer {
           CornerRadius(4f * scale)
         )
 
-        // Subtle vertical brick texture lines so terrain looks physical and distinct
-        val brickStep = 28f * scale
-        var bx = px + brickStep
-        while (bx < px + pw - 6f * scale) {
-          drawLine(
-            accentColor.copy(alpha = 0.4f),
-            Offset(bx, py + snowCapHeight),
-            Offset(bx, py + ph),
-            strokeWidth = 1.2f * scale
-          )
-          bx += brickStep
+        // Arcade Chevron / Zigzag pattern on platform face (matching Snow Bros arcade screenshot)
+        val chevronStep = 18f * scale
+        var cx = px
+        var isAlt = false
+        while (cx < px + pw - 2f * scale) {
+          val segW = chevronStep.coerceAtMost(px + pw - cx)
+          val chevronColor = if (isAlt) Color(0xFFFFD700).copy(alpha = 0.85f) else Color(0xFF00E5FF).copy(alpha = 0.5f)
+          sharedPath.reset()
+          sharedPath.moveTo(cx, py + snowCapHeight)
+          sharedPath.lineTo(cx + segW / 2f, py + ph)
+          sharedPath.lineTo(cx + segW, py + snowCapHeight)
+          sharedPath.close()
+          drawPath(sharedPath, chevronColor)
+          cx += segW
+          isAlt = !isAlt
         }
 
         // Platform crisp neon border highlight
@@ -116,6 +120,16 @@ object GameRenderer {
           Offset(px + pw - 1f * scale, py + snowCapHeight),
           strokeWidth = 2f * scale
         )
+      }
+
+      // 2b. Obstacle Hazards (Wall Gargoyles/Totems that attack, matching user screenshot)
+      for (hazard in engine.obstacleHazards) {
+        drawObstacleHazard(this, hazard, offsetX, offsetY, scale, sharedPath)
+      }
+
+      // 2c. Hazard Fireballs (Flames spat by green/multi-color obstacles)
+      for (fireball in engine.hazardFireballs) {
+        drawHazardFireball(this, fireball, offsetX, offsetY, scale, sharedPath)
       }
 
       // 3. Falling Icicles (Boss hazards)
@@ -832,5 +846,174 @@ object GameRenderer {
       Offset(bx + (barW - measure.size.width) / 2f, by - 13f * scale),
       style
     )
+  }
+
+  private fun drawObstacleHazard(
+    drawScope: DrawScope,
+    hazard: ObstacleHazard,
+    ox: Float,
+    oy: Float,
+    scale: Float,
+    sharedPath: Path
+  ) {
+    val hx = ox + hazard.x * scale
+    val hy = oy + hazard.y * scale
+    val hw = hazard.width * scale
+    val hh = hazard.height * scale
+    val primaryColor = Color(hazard.colorType.primaryColor)
+    val glowColor = Color(hazard.colorType.mouthGlow)
+
+    // Base dark stone foundation block
+    drawScope.drawRoundRect(
+      Color(0xFF0D1B2A),
+      Offset(hx - 2f * scale, hy - 2f * scale),
+      Size(hw + 4f * scale, hh + 4f * scale),
+      CornerRadius(6f * scale)
+    )
+
+    // Main Gargoyle / Beast Head Body (matches green obstacle from screenshot!)
+    drawScope.drawRoundRect(
+      primaryColor,
+      Offset(hx, hy),
+      Size(hw, hh),
+      CornerRadius(5f * scale)
+    )
+
+    // Head horns / crest (demon/gargoyle horns on top)
+    sharedPath.reset()
+    if (hazard.facesRight) {
+      sharedPath.moveTo(hx + hw * 0.2f, hy)
+      sharedPath.lineTo(hx - 4f * scale, hy - 7f * scale)
+      sharedPath.lineTo(hx + hw * 0.45f, hy)
+      sharedPath.close()
+      sharedPath.moveTo(hx + hw * 0.55f, hy)
+      sharedPath.lineTo(hx + hw * 0.3f, hy - 8f * scale)
+      sharedPath.lineTo(hx + hw * 0.8f, hy)
+      sharedPath.close()
+    } else {
+      sharedPath.moveTo(hx + hw * 0.8f, hy)
+      sharedPath.lineTo(hx + hw + 4f * scale, hy - 7f * scale)
+      sharedPath.lineTo(hx + hw * 0.55f, hy)
+      sharedPath.close()
+      sharedPath.moveTo(hx + hw * 0.45f, hy)
+      sharedPath.lineTo(hx + hw * 0.7f, hy - 8f * scale)
+      sharedPath.lineTo(hx + hw * 0.2f, hy)
+      sharedPath.close()
+    }
+    drawScope.drawPath(sharedPath, primaryColor)
+    drawScope.drawPath(sharedPath, Color.Black.copy(alpha = 0.5f), style = Stroke(width = 1.2f * scale))
+
+    // Glowing Eyes
+    val eyeX = if (hazard.facesRight) hx + hw * 0.62f else hx + hw * 0.22f
+    val eyeY = hy + hh * 0.32f
+    val eyeColor = if (hazard.isAttacking) Color(0xFFFFEB3B) else Color(0xFFFF5252)
+    val eyeRadius = if (hazard.isAttacking) 4.5f * scale else 3.5f * scale
+
+    // Eye glow aura
+    drawScope.drawCircle(eyeColor.copy(alpha = 0.4f), radius = eyeRadius * 1.6f, center = Offset(eyeX, eyeY))
+    drawScope.drawCircle(eyeColor, radius = eyeRadius, center = Offset(eyeX, eyeY))
+    // Slit pupil
+    drawScope.drawOval(
+      Color.Black,
+      Offset(eyeX - 1.2f * scale, eyeY - 2.5f * scale),
+      Size(2.4f * scale, 5f * scale)
+    )
+
+    // Mouth / Maw
+    val mouthW = hw * 0.65f
+    val mouthH = if (hazard.isAttacking) hh * 0.45f else hh * 0.22f
+    val mouthX = if (hazard.facesRight) hx + hw * 0.45f else hx - hw * 0.1f
+    val mouthY = hy + hh * 0.55f
+
+    if (hazard.isAttacking) {
+      // Wide open fiery mouth breathing fire! (Just like in the screenshot!)
+      drawScope.drawRoundRect(
+        Color(0xFF1A0000),
+        Offset(mouthX, mouthY),
+        Size(mouthW, mouthH),
+        CornerRadius(3f * scale)
+      )
+      // Internal Fireball / Flame charge inside mouth
+      drawScope.drawCircle(
+        glowColor,
+        radius = (mouthH * 0.55f),
+        center = Offset(mouthX + mouthW / 2f, mouthY + mouthH / 2f)
+      )
+      drawScope.drawCircle(
+        Color(0xFFFFEB3B),
+        radius = (mouthH * 0.3f),
+        center = Offset(mouthX + mouthW / 2f, mouthY + mouthH / 2f)
+      )
+      // Sharp fangs on jaw
+      sharedPath.reset()
+      sharedPath.moveTo(mouthX + 2f * scale, mouthY)
+      sharedPath.lineTo(mouthX + 6f * scale, mouthY + 4f * scale)
+      sharedPath.lineTo(mouthX + 10f * scale, mouthY)
+      sharedPath.close()
+      drawScope.drawPath(sharedPath, Color.White)
+    } else {
+      // Idle stone grin
+      drawScope.drawRoundRect(
+        Color(0xFF0F172A),
+        Offset(mouthX, mouthY),
+        Size(mouthW, mouthH),
+        CornerRadius(2f * scale)
+      )
+      // Fangs
+      sharedPath.reset()
+      sharedPath.moveTo(mouthX + 2f * scale, mouthY)
+      sharedPath.lineTo(mouthX + 5f * scale, mouthY + 3f * scale)
+      sharedPath.lineTo(mouthX + 8f * scale, mouthY)
+      sharedPath.close()
+      drawScope.drawPath(sharedPath, Color.White)
+    }
+
+    // Outer dark stroke
+    drawScope.drawRoundRect(
+      Color(0xFF0B1320),
+      Offset(hx, hy),
+      Size(hw, hh),
+      CornerRadius(5f * scale),
+      style = Stroke(width = 1.6f * scale)
+    )
+  }
+
+  private fun drawHazardFireball(
+    drawScope: DrawScope,
+    fireball: HazardFireball,
+    ox: Float,
+    oy: Float,
+    scale: Float,
+    sharedPath: Path
+  ) {
+    val fx = ox + fireball.x * scale
+    val fy = oy + fireball.y * scale
+    val fr = fireball.radius * scale
+    val glowColor = Color(fireball.colorType.mouthGlow)
+
+    // Outer flame glow aura
+    drawScope.drawCircle(glowColor.copy(alpha = 0.35f), radius = fr * 1.8f, center = Offset(fx, fy))
+    // Mid fireball body
+    drawScope.drawCircle(glowColor, radius = fr * 1.2f, center = Offset(fx, fy))
+    // Bright yellow flame core
+    drawScope.drawCircle(Color(0xFFFFEB3B), radius = fr * 0.75f, center = Offset(fx, fy))
+    // Pure white hot center
+    drawScope.drawCircle(Color.White, radius = fr * 0.4f, center = Offset(fx, fy))
+
+    // Trailing flame flamelets
+    val tailDir = if (fireball.vx > 0f) -1f else 1f
+    sharedPath.reset()
+    sharedPath.moveTo(fx, fy - fr * 0.7f)
+    sharedPath.lineTo(fx + tailDir * (fr * 2.2f), fy)
+    sharedPath.lineTo(fx, fy + fr * 0.7f)
+    sharedPath.close()
+    drawScope.drawPath(sharedPath, glowColor.copy(alpha = 0.8f))
+
+    sharedPath.reset()
+    sharedPath.moveTo(fx, fy - fr * 0.4f)
+    sharedPath.lineTo(fx + tailDir * (fr * 1.4f), fy)
+    sharedPath.lineTo(fx, fy + fr * 0.4f)
+    sharedPath.close()
+    drawScope.drawPath(sharedPath, Color(0xFFFFEB3B))
   }
 }

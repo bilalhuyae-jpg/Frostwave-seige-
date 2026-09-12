@@ -53,8 +53,12 @@ fun LevelClearScreen(
   levelName: String,
   currentScore: Int,
   collectedLetters: Set<Char>,
-  onNextLevel: () -> Unit
+  onNextLevel: () -> Unit,
+  onPlay1P: () -> Unit = {},
+  onPlay2P: () -> Unit = {},
+  onQuit: () -> Unit = {}
 ) {
+  val isGameClear = levelNumber >= 300
   var startTally by remember { mutableStateOf(false) }
   LaunchedEffect(Unit) {
     startTally = true
@@ -73,49 +77,49 @@ fun LevelClearScreen(
   Box(
     modifier = Modifier
       .fillMaxSize()
-      .background(Color.Black.copy(alpha = 0.85f)),
+      .background(Color.Black.copy(alpha = 0.88f)),
     contentAlignment = Alignment.Center
   ) {
     Card(
       modifier = Modifier
-        .fillMaxWidth(0.9f)
-        .padding(16.dp),
+        .fillMaxWidth(0.92f)
+        .padding(14.dp),
       colors = CardDefaults.cardColors(containerColor = IceSurface),
       shape = RoundedCornerShape(24.dp),
-      border = androidx.compose.foundation.BorderStroke(2.dp, NeonCyan)
+      border = androidx.compose.foundation.BorderStroke(2.dp, if (isGameClear) ArcadeYellow else NeonCyan)
     ) {
       Column(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(24.dp),
+          .padding(22.dp),
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
         Icon(
           imageVector = Icons.Default.CheckCircle,
           contentDescription = null,
-          tint = FrostMint,
+          tint = if (isGameClear) ArcadeYellow else FrostMint,
           modifier = Modifier.size(48.dp)
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-          text = "STAGE CLEAR!",
+          text = if (isGameClear) "STAGE END" else "STAGE CLEAR!",
           color = ArcadeYellow,
-          fontSize = 24.sp,
+          fontSize = if (isGameClear) 28.sp else 24.sp,
           fontWeight = FontWeight.Black,
           fontFamily = FontFamily.Monospace
         )
 
         Text(
-          text = "STAGE $levelNumber / 300: $levelName",
+          text = if (isGameClear) "ALL 300 STAGES COMPLETED!" else "STAGE $levelNumber / 300: $levelName",
           color = NeonCyan,
           fontSize = 12.sp,
           fontWeight = FontWeight.Bold,
           fontFamily = FontFamily.Monospace
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Bonus Letters Collected This Run
         Text(
@@ -160,7 +164,7 @@ fun LevelClearScreen(
           }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Score Tally Box
         Column(
@@ -194,25 +198,84 @@ fun LevelClearScreen(
           }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        Button(
-          onClick = onNextLevel,
-          modifier = Modifier
-            .fillMaxWidth()
-            .height(54.dp)
-            .testTag("next_level_button"),
-          colors = ButtonDefaults.buttonColors(containerColor = NeonCyan, contentColor = AbyssMidnight),
-          shape = RoundedCornerShape(14.dp)
-        ) {
-          Text(
-            text = "CONTINUE TO NEXT STAGE",
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Black,
-            fontFamily = FontFamily.Monospace
-          )
-          Spacer(modifier = Modifier.width(8.dp))
-          Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+        if (isGameClear) {
+          // Stage 300 Winning Board Actions: Play 1 Player, Play 2 Players, Main Menu
+          Button(
+            onClick = onPlay1P,
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(50.dp)
+              .testTag("play_1_player_button"),
+            colors = ButtonDefaults.buttonColors(containerColor = NeonCyan, contentColor = AbyssMidnight),
+            shape = RoundedCornerShape(12.dp)
+          ) {
+            Text(
+              text = "PLAY 1 PLAYER",
+              fontSize = 13.sp,
+              fontWeight = FontWeight.Black,
+              fontFamily = FontFamily.Monospace
+            )
+          }
+
+          Spacer(modifier = Modifier.height(10.dp))
+
+          Button(
+            onClick = onPlay2P,
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(50.dp)
+              .testTag("play_2_players_button"),
+            colors = ButtonDefaults.buttonColors(containerColor = ArcadeYellow, contentColor = AbyssMidnight),
+            shape = RoundedCornerShape(12.dp)
+          ) {
+            Text(
+              text = "PLAY 2 PLAYERS",
+              fontSize = 13.sp,
+              fontWeight = FontWeight.Black,
+              fontFamily = FontFamily.Monospace
+            )
+          }
+
+          Spacer(modifier = Modifier.height(10.dp))
+
+          Button(
+            onClick = onQuit,
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(46.dp)
+              .testTag("winning_board_menu_button"),
+            colors = ButtonDefaults.buttonColors(containerColor = AbyssMidnight, contentColor = Color.White),
+            shape = RoundedCornerShape(12.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray)
+          ) {
+            Text(
+              text = "MAIN MENU",
+              fontSize = 12.sp,
+              fontWeight = FontWeight.Bold,
+              fontFamily = FontFamily.Monospace
+            )
+          }
+        } else {
+          Button(
+            onClick = onNextLevel,
+            modifier = Modifier
+              .fillMaxWidth()
+              .height(52.dp)
+              .testTag("next_level_button"),
+            colors = ButtonDefaults.buttonColors(containerColor = NeonCyan, contentColor = AbyssMidnight),
+            shape = RoundedCornerShape(14.dp)
+          ) {
+            Text(
+              text = "CONTINUE TO NEXT STAGE",
+              fontSize = 13.sp,
+              fontWeight = FontWeight.Black,
+              fontFamily = FontFamily.Monospace
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+          }
         }
       }
     }
