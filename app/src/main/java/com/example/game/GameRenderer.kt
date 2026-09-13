@@ -581,48 +581,107 @@ object GameRenderer {
       }
 
       EnemyType.CRYO_TITAN -> {
-        // Massive Boss Cryo-Titan
-        val titanColor = if (e.bossPhase == 3) Color(0xFFFF3D00) else Color(0xFF1E88E5)
-        drawScope.drawRoundRect(
-          titanColor,
-          Offset(x, y),
-          Size(w, h),
-          CornerRadius(14f * scale)
-        )
-        drawScope.drawRoundRect(
-          Color.White,
-          Offset(x, y),
-          Size(w, h),
-          CornerRadius(14f * scale),
-          style = Stroke(width = 2f * scale)
-        )
-
-        // Frost Spikes on shoulders using reusable path
-        sharedPath.reset()
-        sharedPath.moveTo(x - 10f * scale, y + 20f * scale)
-        sharedPath.lineTo(x, y)
-        sharedPath.lineTo(x + 10f * scale, y + 25f * scale)
-        sharedPath.close()
-        drawScope.drawPath(sharedPath, Color(0xFF00E5FF))
-
-        sharedPath.reset()
-        sharedPath.moveTo(x + w + 10f * scale, y + 20f * scale)
-        sharedPath.lineTo(x + w, y)
-        sharedPath.lineTo(x + w - 10f * scale, y + 25f * scale)
-        sharedPath.close()
-        drawScope.drawPath(sharedPath, Color(0xFF00E5FF))
-
-        // Glowing Core / Reactor
-        val coreColor = when (e.bossPhase) {
-          3 -> Color(0xFFFF1744)
-          2 -> Color(0xFFFF9100)
-          else -> Color(0xFF00E5FF)
+        // Massive Boss Cryo-Titan (Screenshot 4 Boss: Demonic horned titan with shoulder exhaust cannons)
+        val titanBodyColor = when (e.bossPhase) {
+          3 -> Color(0xFFD50000) // Berserk crimson
+          2 -> Color(0xFFC2185B) // Enraged magenta
+          else -> Color(0xFF880E4F) // Deep demonic purple-crimson
         }
-        drawScope.drawCircle(coreColor, radius = 9f * scale, center = Offset(x + w / 2f, y + h * 0.65f))
+        val armorTrimColor = Color(0xFFFFD700) // Golden imperial trims
 
-        // Glowing Boss Eyes
-        drawScope.drawCircle(Color(0xFFFFD93D), radius = 6f * scale, center = Offset(x + w * 0.35f, y + h * 0.35f))
-        drawScope.drawCircle(Color(0xFFFFD93D), radius = 6f * scale, center = Offset(x + w * 0.65f, y + h * 0.35f))
+        // Shoulder Cannon Tube Left (angled outward)
+        sharedPath.reset()
+        sharedPath.moveTo(x + 4f * scale, y + 25f * scale)
+        sharedPath.lineTo(x - 12f * scale, y - 8f * scale)
+        sharedPath.lineTo(x - 2f * scale, y - 13f * scale)
+        sharedPath.lineTo(x + 14f * scale, y + 20f * scale)
+        sharedPath.close()
+        drawScope.drawPath(sharedPath, Color(0xFF263238))
+        drawScope.drawPath(sharedPath, armorTrimColor, style = Stroke(width = 1.5f * scale))
+
+        // Left Cannon Flame Plume
+        drawScope.drawCircle(
+          Color(0xFFFF3D00).copy(alpha = 0.9f),
+          radius = 7f * scale,
+          center = Offset(x - 7f * scale, y - 10f * scale)
+        )
+        drawScope.drawCircle(
+          Color(0xFFFFEB3B),
+          radius = 4f * scale,
+          center = Offset(x - 7f * scale, y - 10f * scale)
+        )
+
+        // Shoulder Cannon Tube Right (angled outward)
+        sharedPath.reset()
+        sharedPath.moveTo(x + w - 4f * scale, y + 25f * scale)
+        sharedPath.lineTo(x + w + 12f * scale, y - 8f * scale)
+        sharedPath.lineTo(x + w + 2f * scale, y - 13f * scale)
+        sharedPath.lineTo(x + w - 14f * scale, y + 20f * scale)
+        sharedPath.close()
+        drawScope.drawPath(sharedPath, Color(0xFF263238))
+        drawScope.drawPath(sharedPath, armorTrimColor, style = Stroke(width = 1.5f * scale))
+
+        // Right Cannon Flame Plume
+        drawScope.drawCircle(
+          Color(0xFFFF3D00).copy(alpha = 0.9f),
+          radius = 7f * scale,
+          center = Offset(x + w + 7f * scale, y - 10f * scale)
+        )
+        drawScope.drawCircle(
+          Color(0xFFFFEB3B),
+          radius = 4f * scale,
+          center = Offset(x + w + 7f * scale, y - 10f * scale)
+        )
+
+        // Main Heavy Body RoundRect
+        drawScope.drawRoundRect(
+          titanBodyColor,
+          Offset(x, y),
+          Size(w, h),
+          CornerRadius(16f * scale)
+        )
+        drawScope.drawRoundRect(
+          armorTrimColor,
+          Offset(x, y),
+          Size(w, h),
+          CornerRadius(16f * scale),
+          style = Stroke(width = 2.2f * scale)
+        )
+
+        // Horn Crest / Crown on Head
+        sharedPath.reset()
+        sharedPath.moveTo(x + w * 0.2f, y)
+        sharedPath.lineTo(x + w * 0.1f, y - 12f * scale)
+        sharedPath.lineTo(x + w * 0.35f, y)
+        sharedPath.lineTo(x + w * 0.5f, y - 16f * scale) // Center high crown spike
+        sharedPath.lineTo(x + w * 0.65f, y)
+        sharedPath.lineTo(x + w * 0.9f, y - 12f * scale)
+        sharedPath.lineTo(x + w * 0.8f, y)
+        sharedPath.close()
+        drawScope.drawPath(sharedPath, armorTrimColor)
+
+        // Glowing Demon Eyes
+        drawScope.drawCircle(Color(0xFFFFEA00), radius = 6.5f * scale, center = Offset(x + w * 0.32f, y + h * 0.36f))
+        drawScope.drawCircle(Color(0xFFFF1744), radius = 2.8f * scale, center = Offset(x + w * 0.32f, y + h * 0.36f))
+        drawScope.drawCircle(Color(0xFFFFEA00), radius = 6.5f * scale, center = Offset(x + w * 0.68f, y + h * 0.36f))
+        drawScope.drawCircle(Color(0xFFFF1744), radius = 2.8f * scale, center = Offset(x + w * 0.68f, y + h * 0.36f))
+
+        // Menacing Jagged Fangs Mouth
+        sharedPath.reset()
+        val mouthY = y + h * 0.62f
+        sharedPath.moveTo(x + w * 0.25f, mouthY)
+        sharedPath.lineTo(x + w * 0.35f, mouthY + 7f * scale)
+        sharedPath.lineTo(x + w * 0.45f, mouthY)
+        sharedPath.lineTo(x + w * 0.55f, mouthY + 7f * scale)
+        sharedPath.lineTo(x + w * 0.65f, mouthY)
+        sharedPath.lineTo(x + w * 0.75f, mouthY + 7f * scale)
+        sharedPath.lineTo(x + w * 0.75f, mouthY)
+        drawScope.drawPath(sharedPath, Color.White, style = Stroke(width = 2.5f * scale))
+
+        // Glowing Core / Reactor at center
+        val coreGlow = if (e.bossPhase == 3) Color(0xFFFF1744) else Color(0xFFFF9100)
+        drawScope.drawCircle(coreGlow, radius = 9f * scale, center = Offset(x + w / 2f, y + h * 0.82f))
+        drawScope.drawCircle(Color.White, radius = 4f * scale, center = Offset(x + w / 2f, y + h * 0.82f))
       }
     }
   }

@@ -155,127 +155,209 @@ object LevelCatalog {
   // Floor platform common to all stages
   private val baseFloor = Platform(x = 0f, y = 540f, width = 400f, height = 24f, isOneWay = false)
 
-  // 10 Distinct Architectural Platform Archetypes
+  // 10 Distinct Architectural Platform Archetypes featuring iconic Snow Bros layouts
   private val archetypes: List<(Int) -> List<Platform>> = listOf(
-    // 0: Classic Dual Ramparts + Center Bridge (Snow Bros style)
+    // 0: Pyramid Sanctum (Directly from Screenshot 1)
+    // Central stepped mountain with side ledges and apex perch
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 30f, y = 440f, width = 140f),
-        Platform(x = 230f, y = 440f, width = 140f),
-        Platform(x = 90f, y = 330f, width = 220f),
-        Platform(x = 30f, y = 220f, width = 130f),
-        Platform(x = 240f, y = 220f, width = 130f),
-        Platform(x = 120f, y = 120f, width = 160f)
+        Platform(x = 75f, y = 450f, width = 250f),  // Pyramid Tier 1 (Base)
+        Platform(x = 110f, y = 380f, width = 180f), // Pyramid Tier 2
+        Platform(x = 145f, y = 310f, width = 110f), // Pyramid Tier 3
+        Platform(x = 175f, y = 240f, width = 50f),  // Pyramid Apex
+        Platform(x = 10f, y = 370f, width = 65f),   // Left Mid Ledge
+        Platform(x = 325f, y = 370f, width = 65f),  // Right Mid Ledge
+        Platform(x = 10f, y = 240f, width = 65f),   // Left High Ledge
+        Platform(x = 325f, y = 240f, width = 65f),  // Right High Ledge
+        Platform(x = 80f, y = 160f, width = 70f),   // Upper Sky Left
+        Platform(x = 250f, y = 160f, width = 70f),  // Upper Sky Right
+        Platform(x = 130f, y = 100f, width = 140f), // Ceiling Bridge
+        Platform(x = 10f, y = 100f, width = 60f),   // Left Crow Nest
+        Platform(x = 330f, y = 100f, width = 60f),  // Right Crow Nest
+        Platform(x = 175f, y = 170f, width = 50f)   // Apex Cloud Step
       )
     },
-    // 1: Alternating Stepped Terraces
+
+    // 1: Vertical Chutes & Comb Wells (Directly from Screenshot 2)
+    // Horizontal comb spine with vertical dividing teeth forming drop wells, lower pits, top ledges
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 20f, y = 450f, width = 110f),
-        Platform(x = 270f, y = 450f, width = 110f),
-        Platform(x = 130f, y = 380f, width = 140f),
-        Platform(x = 40f, y = 290f, width = 130f),
-        Platform(x = 230f, y = 290f, width = 130f),
-        Platform(x = 110f, y = 190f, width = 180f),
-        Platform(x = 30f, y = 105f, width = 100f),
-        Platform(x = 270f, y = 105f, width = 100f)
+        Platform(x = 20f, y = 350f, width = 360f),  // Comb Horizontal Spine
+        Platform(x = 30f, y = 260f, width = 22f, height = 90f, isOneWay = false),  // Chute Wall 1
+        Platform(x = 135f, y = 260f, width = 22f, height = 90f, isOneWay = false), // Chute Wall 2
+        Platform(x = 245f, y = 260f, width = 22f, height = 90f, isOneWay = false), // Chute Wall 3
+        Platform(x = 350f, y = 260f, width = 22f, height = 90f, isOneWay = false), // Chute Wall 4
+        Platform(x = 15f, y = 140f, width = 75f),   // Upper Ledge 1
+        Platform(x = 115f, y = 140f, width = 75f),  // Upper Ledge 2
+        Platform(x = 210f, y = 140f, width = 75f),  // Upper Ledge 3
+        Platform(x = 310f, y = 140f, width = 75f),  // Upper Ledge 4
+        Platform(x = 30f, y = 460f, width = 95f),   // Lower Pit Left
+        Platform(x = 155f, y = 460f, width = 90f),  // Lower Pit Center
+        Platform(x = 275f, y = 460f, width = 95f),  // Lower Pit Right
+        Platform(x = 130f, y = 70f, width = 140f),  // Skylight Beam
+        Platform(x = 10f, y = 70f, width = 60f),    // Attic Left
+        Platform(x = 330f, y = 70f, width = 60f)    // Attic Right
       )
     },
-    // 2: Dynamic Zig-Zag Spire
+
+    // 2: Octagonal Ring Fortress & Central Altar (Directly from Screenshot 3)
+    // Hollow enclosed sanctum with floating altar in the middle and perimeter stairs
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 20f, y = 455f, width = 230f),
-        Platform(x = 150f, y = 375f, width = 230f),
-        Platform(x = 20f, y = 295f, width = 230f),
-        Platform(x = 150f, y = 210f, width = 230f),
-        Platform(x = 80f, y = 125f, width = 240f)
+        Platform(x = 130f, y = 200f, width = 140f), // Fortress Top Arch
+        Platform(x = 80f, y = 265f, width = 55f),   // Left Upper Slope
+        Platform(x = 80f, y = 355f, width = 55f),   // Left Lower Slope
+        Platform(x = 265f, y = 265f, width = 55f),  // Right Upper Slope
+        Platform(x = 265f, y = 355f, width = 55f),  // Right Lower Slope
+        Platform(x = 115f, y = 425f, width = 170f), // Fortress Floor
+        Platform(x = 170f, y = 315f, width = 60f),  // Central Altar Pedestal
+        Platform(x = 10f, y = 470f, width = 65f),   // Outer Stair Left 1
+        Platform(x = 325f, y = 470f, width = 65f),  // Outer Stair Right 1
+        Platform(x = 10f, y = 340f, width = 65f),   // Outer Stair Left 2
+        Platform(x = 325f, y = 340f, width = 65f),  // Outer Stair Right 2
+        Platform(x = 10f, y = 210f, width = 65f),   // Outer Stair Left 3
+        Platform(x = 325f, y = 210f, width = 65f),  // Outer Stair Right 3
+        Platform(x = 110f, y = 110f, width = 180f), // Fortress Spire Roof
+        Platform(x = 160f, y = 480f, width = 80f)   // Base Pedestal Ledge
       )
     },
-    // 3: Boss Arena (Spacious floor with high defensive ledges)
+
+    // 3: Titan Throne Boss Arena (Directly from Screenshot 4)
+    // Multi-tier battle ramparts above the giant boss chamber with checkerboard ledges
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 20f, y = 430f, width = 110f),
-        Platform(x = 270f, y = 430f, width = 110f),
-        Platform(x = 30f, y = 310f, width = 100f),
-        Platform(x = 270f, y = 310f, width = 100f),
-        Platform(x = 120f, y = 210f, width = 160f)
+        Platform(x = 50f, y = 295f, width = 300f),  // Main Cross Highway
+        Platform(x = 10f, y = 405f, width = 95f),   // Lower Wing Left
+        Platform(x = 295f, y = 405f, width = 95f),  // Lower Wing Right
+        Platform(x = 20f, y = 195f, width = 135f),  // Sniping Deck Left
+        Platform(x = 245f, y = 195f, width = 135f), // Sniping Deck Right
+        Platform(x = 115f, y = 95f, width = 170f),  // High Command Bridge
+        Platform(x = 160f, y = 405f, width = 80f),  // Boss Head Hazard Step
+        Platform(x = 10f, y = 95f, width = 85f),    // High Left Turret
+        Platform(x = 305f, y = 95f, width = 85f),   // High Right Turret
+        Platform(x = 160f, y = 195f, width = 80f),  // Middle Drop Shaft
+        Platform(x = 10f, y = 490f, width = 60f),   // Low Left Bunker
+        Platform(x = 330f, y = 490f, width = 60f),  // Low Right Bunker
+        Platform(x = 170f, y = 490f, width = 60f),  // Low Center Shield
+        Platform(x = 120f, y = 245f, width = 160f)  // Mid-Tier Deflector
       )
     },
-    // 4: Symmetrical Triple Column Cascade
+
+    // 4: Dual Watchtowers & Center Chasm
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 30f, y = 450f, width = 90f),
-        Platform(x = 155f, y = 450f, width = 90f),
-        Platform(x = 280f, y = 450f, width = 90f),
-        Platform(x = 80f, y = 340f, width = 100f),
-        Platform(x = 220f, y = 340f, width = 100f),
-        Platform(x = 30f, y = 230f, width = 90f),
-        Platform(x = 155f, y = 230f, width = 90f),
-        Platform(x = 280f, y = 230f, width = 90f),
-        Platform(x = 100f, y = 120f, width = 200f)
+        Platform(x = 20f, y = 440f, width = 120f),
+        Platform(x = 260f, y = 440f, width = 120f),
+        Platform(x = 25f, y = 330f, width = 110f),
+        Platform(x = 265f, y = 330f, width = 110f),
+        Platform(x = 120f, y = 270f, width = 160f),
+        Platform(x = 20f, y = 210f, width = 120f),
+        Platform(x = 260f, y = 210f, width = 120f),
+        Platform(x = 100f, y = 110f, width = 200f),
+        Platform(x = 140f, y = 370f, width = 120f),
+        Platform(x = 30f, y = 100f, width = 60f),
+        Platform(x = 310f, y = 100f, width = 60f),
+        Platform(x = 150f, y = 480f, width = 100f),
+        Platform(x = 80f, y = 190f, width = 60f),
+        Platform(x = 260f, y = 190f, width = 60f),
+        Platform(x = 160f, y = 50f, width = 80f)
       )
     },
-    // 5: Hourglass Funnel (Center choke point with wide escape wings)
+
+    // 5: Grand Zig-Zag Switchback
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 20f, y = 460f, width = 160f),
-        Platform(x = 220f, y = 460f, width = 160f),
-        Platform(x = 120f, y = 370f, width = 160f),
-        Platform(x = 150f, y = 280f, width = 100f),
-        Platform(x = 30f, y = 200f, width = 150f),
-        Platform(x = 220f, y = 200f, width = 150f),
-        Platform(x = 90f, y = 110f, width = 220f)
+        Platform(x = 20f, y = 460f, width = 260f),
+        Platform(x = 120f, y = 380f, width = 260f),
+        Platform(x = 20f, y = 300f, width = 260f),
+        Platform(x = 120f, y = 210f, width = 260f),
+        Platform(x = 70f, y = 120f, width = 260f),
+        Platform(x = 295f, y = 460f, width = 85f),
+        Platform(x = 20f, y = 380f, width = 85f),
+        Platform(x = 295f, y = 300f, width = 85f),
+        Platform(x = 20f, y = 210f, width = 85f),
+        Platform(x = 150f, y = 500f, width = 100f),
+        Platform(x = 10f, y = 120f, width = 50f),
+        Platform(x = 340f, y = 120f, width = 50f),
+        Platform(x = 120f, y = 60f, width = 160f),
+        Platform(x = 160f, y = 340f, width = 80f),
+        Platform(x = 160f, y = 170f, width = 80f)
       )
     },
+
     // 6: Floating Diamond Sanctum
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 130f, y = 460f, width = 140f),
-        Platform(x = 40f, y = 370f, width = 120f),
-        Platform(x = 240f, y = 370f, width = 120f),
-        Platform(x = 20f, y = 270f, width = 100f),
-        Platform(x = 140f, y = 270f, width = 120f),
-        Platform(x = 280f, y = 270f, width = 100f),
-        Platform(x = 50f, y = 170f, width = 130f),
-        Platform(x = 220f, y = 170f, width = 130f),
-        Platform(x = 130f, y = 90f, width = 140f)
+        Platform(x = 135f, y = 460f, width = 130f),
+        Platform(x = 35f, y = 370f, width = 120f),
+        Platform(x = 245f, y = 370f, width = 120f),
+        Platform(x = 135f, y = 280f, width = 130f),
+        Platform(x = 35f, y = 190f, width = 120f),
+        Platform(x = 245f, y = 190f, width = 120f),
+        Platform(x = 135f, y = 100f, width = 130f),
+        Platform(x = 10f, y = 460f, width = 80f),
+        Platform(x = 310f, y = 460f, width = 80f),
+        Platform(x = 10f, y = 280f, width = 80f),
+        Platform(x = 310f, y = 280f, width = 80f),
+        Platform(x = 10f, y = 100f, width = 80f),
+        Platform(x = 310f, y = 100f, width = 80f),
+        Platform(x = 150f, y = 500f, width = 100f),
+        Platform(x = 160f, y = 40f, width = 80f)
       )
     },
-    // 7: Twin Watchtowers (Vertical climbing chimneys)
+
+    // 7: Triple Column Cascade
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 20f, y = 440f, width = 130f),
-        Platform(x = 250f, y = 440f, width = 130f),
-        Platform(x = 30f, y = 340f, width = 110f),
-        Platform(x = 260f, y = 340f, width = 110f),
-        Platform(x = 140f, y = 270f, width = 120f),
-        Platform(x = 20f, y = 200f, width = 130f),
-        Platform(x = 250f, y = 200f, width = 130f),
-        Platform(x = 80f, y = 110f, width = 240f)
+        Platform(x = 25f, y = 440f, width = 90f),
+        Platform(x = 155f, y = 440f, width = 90f),
+        Platform(x = 285f, y = 440f, width = 90f),
+        Platform(x = 85f, y = 330f, width = 100f),
+        Platform(x = 215f, y = 330f, width = 100f),
+        Platform(x = 25f, y = 220f, width = 90f),
+        Platform(x = 155f, y = 220f, width = 90f),
+        Platform(x = 285f, y = 220f, width = 90f),
+        Platform(x = 100f, y = 110f, width = 200f),
+        Platform(x = 15f, y = 110f, width = 60f),
+        Platform(x = 325f, y = 110f, width = 60f),
+        Platform(x = 90f, y = 490f, width = 80f),
+        Platform(x = 230f, y = 490f, width = 80f),
+        Platform(x = 150f, y = 160f, width = 100f),
+        Platform(x = 140f, y = 50f, width = 120f)
       )
     },
-    // 8: Open Skylight Ramparts (Great for aerial freeze shots)
+
+    // 8: Hourglass Funnel
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 50f, y = 460f, width = 300f),
-        Platform(x = 20f, y = 360f, width = 120f),
-        Platform(x = 260f, y = 360f, width = 120f),
-        Platform(x = 100f, y = 260f, width = 200f),
-        Platform(x = 20f, y = 160f, width = 130f),
-        Platform(x = 250f, y = 160f, width = 130f),
-        Platform(x = 140f, y = 80f, width = 120f)
+        Platform(x = 20f, y = 460f, width = 150f),
+        Platform(x = 230f, y = 460f, width = 150f),
+        Platform(x = 110f, y = 370f, width = 180f),
+        Platform(x = 145f, y = 280f, width = 110f),
+        Platform(x = 20f, y = 190f, width = 150f),
+        Platform(x = 230f, y = 190f, width = 150f),
+        Platform(x = 90f, y = 100f, width = 220f),
+        Platform(x = 10f, y = 370f, width = 70f),
+        Platform(x = 320f, y = 370f, width = 70f),
+        Platform(x = 10f, y = 280f, width = 80f),
+        Platform(x = 310f, y = 280f, width = 80f),
+        Platform(x = 10f, y = 100f, width = 60f),
+        Platform(x = 330f, y = 100f, width = 60f),
+        Platform(x = 150f, y = 490f, width = 100f),
+        Platform(x = 160f, y = 50f, width = 80f)
       )
     },
-    // 9: Labyrinth Fortress (Multi-tier challenge)
+
+    // 9: Labyrinth Fortress Keep
     { _ ->
       listOf(
         baseFloor,
@@ -288,7 +370,12 @@ object LevelCatalog {
         Platform(x = 190f, y = 300f, width = 140f),
         Platform(x = 80f, y = 210f, width = 160f),
         Platform(x = 270f, y = 210f, width = 100f),
-        Platform(x = 110f, y = 110f, width = 180f)
+        Platform(x = 110f, y = 110f, width = 180f),
+        Platform(x = 20f, y = 110f, width = 60f),
+        Platform(x = 320f, y = 110f, width = 60f),
+        Platform(x = 140f, y = 430f, width = 120f),
+        Platform(x = 20f, y = 210f, width = 50f),
+        Platform(x = 150f, y = 50f, width = 100f)
       )
     }
   )
@@ -306,94 +393,199 @@ object LevelCatalog {
     val worldIndex = ((lvl - 1) / 50).coerceIn(0, 5)
     val theme = if (isBoss) WorldTheme.TITAN_THRONE else WorldTheme.entries[worldIndex]
 
+    // Determine archetype based on level progression:
+    // Boss stages always use the Titan Throne Boss Arena (Screenshot 4)
+    // Stages 1, 11, 21... use Pyramid Sanctum (Screenshot 1)
+    // Stages 2, 12, 22... use Vertical Comb Chutes & Wells (Screenshot 2)
+    // Stages 3, 13, 23... use Octagonal Ring Fortress & Altar (Screenshot 3)
+    val archIndex = if (isBoss) 3 else ((lvl - 1) % 10)
+    val fullArchetypePlatforms = archetypes[archIndex](lvl)
+
     // Platform layout scaled with exact obstacle count (5 at level 1 up to 15 at level 300)
     val targetObstacleCount = (5f + (lvl - 1) * 10f / 299f).roundToInt().coerceIn(5, 15)
-    val elevatedSlots = listOf(
-      Platform(x = 25f, y = 460f, width = 130f),
-      Platform(x = 245f, y = 460f, width = 130f),
-      Platform(x = 90f, y = 390f, width = 220f),
-      Platform(x = 20f, y = 320f, width = 120f),
-      Platform(x = 260f, y = 320f, width = 120f),
-      Platform(x = 110f, y = 250f, width = 180f),
-      Platform(x = 25f, y = 180f, width = 110f),
-      Platform(x = 265f, y = 180f, width = 110f),
-      Platform(x = 125f, y = 110f, width = 150f),
-      Platform(x = 160f, y = 460f, width = 80f),
-      Platform(x = 20f, y = 390f, width = 60f),
-      Platform(x = 320f, y = 390f, width = 60f),
-      Platform(x = 165f, y = 320f, width = 70f),
-      Platform(x = 135f, y = 50f, width = 130f)
-    )
-    val platforms = mutableListOf(baseFloor)
-    platforms.addAll(elevatedSlots.take(targetObstacleCount - 1))
+    val platforms = fullArchetypePlatforms.take(targetObstacleCount)
 
-    // Obstacle Hazards (Wall gargoyles that attack, matching user's screenshot)
+    // Obstacle Hazards (Wall gargoyles that attack, matching user's screenshots)
     val obstacleHazards = mutableListOf<ObstacleHazard>()
-    // 1. Green Gargoyle (left wall, spits fire stream across stage)
-    obstacleHazards.add(
-      ObstacleHazard(
-        id = 1,
-        x = 16f,
-        y = 320f - 26f,
-        colorType = ObstacleColor.GREEN,
-        facesRight = true,
-        attackTimer = 0.8f,
-        attackInterval = 3.6f
-      )
-    )
-    // 2. Right wall totem (Blue Frostbeast)
-    obstacleHazards.add(
-      ObstacleHazard(
-        id = 2,
-        x = 358f,
-        y = 250f - 26f,
-        colorType = ObstacleColor.BLUE,
-        facesRight = false,
-        attackTimer = 2.4f,
-        attackInterval = 4.2f
-      )
-    )
-    if (lvl >= 15) {
-      // 3. Red Emberclaw (attacks from tier 4)
-      obstacleHazards.add(
-        ObstacleHazard(
-          id = 3,
-          x = 20f,
-          y = 180f - 26f,
-          colorType = ObstacleColor.RED,
-          facesRight = true,
-          attackTimer = 1.4f,
-          attackInterval = 4.0f
+    when (archIndex) {
+      0 -> {
+        // Pyramid Sanctum: Gargoyles on side wings
+        obstacleHazards.add(
+          ObstacleHazard(
+            id = 1,
+            x = 16f,
+            y = 370f - 26f,
+            colorType = ObstacleColor.GREEN,
+            facesRight = true,
+            attackTimer = 0.8f,
+            attackInterval = 3.6f
+          )
         )
-      )
-    }
-    if (lvl >= 50) {
-      // 4. Golden Dragon (tier 2 right)
-      obstacleHazards.add(
-        ObstacleHazard(
-          id = 4,
-          x = 356f,
-          y = 390f - 26f,
-          colorType = ObstacleColor.YELLOW,
-          facesRight = false,
-          attackTimer = 3.0f,
-          attackInterval = 4.5f
+        obstacleHazards.add(
+          ObstacleHazard(
+            id = 2,
+            x = 358f,
+            y = 370f - 26f,
+            colorType = ObstacleColor.BLUE,
+            facesRight = false,
+            attackTimer = 2.2f,
+            attackInterval = 4.0f
+          )
         )
-      )
-    }
-    if (lvl >= 100) {
-      // 5. Additional Green Gargoyle for intense arcade action
-      obstacleHazards.add(
-        ObstacleHazard(
-          id = 5,
-          x = 18f,
-          y = 460f - 26f,
-          colorType = ObstacleColor.GREEN,
-          facesRight = true,
-          attackTimer = 2.0f,
-          attackInterval = 3.8f
+        if (lvl >= 15) {
+          obstacleHazards.add(
+            ObstacleHazard(
+              id = 3,
+              x = 16f,
+              y = 240f - 26f,
+              colorType = ObstacleColor.RED,
+              facesRight = true,
+              attackTimer = 1.5f,
+              attackInterval = 3.8f
+            )
+          )
+        }
+        if (lvl >= 50) {
+          obstacleHazards.add(
+            ObstacleHazard(
+              id = 4,
+              x = 358f,
+              y = 240f - 26f,
+              colorType = ObstacleColor.YELLOW,
+              facesRight = false,
+              attackTimer = 3.0f,
+              attackInterval = 4.2f
+            )
+          )
+        }
+      }
+      1 -> {
+        // Comb Wells: Gargoyles on lower pits & outer walls
+        obstacleHazards.add(
+          ObstacleHazard(
+            id = 1,
+            x = 16f,
+            y = 350f - 26f,
+            colorType = ObstacleColor.GREEN,
+            facesRight = true,
+            attackTimer = 1.0f,
+            attackInterval = 3.5f
+          )
         )
-      )
+        obstacleHazards.add(
+          ObstacleHazard(
+            id = 2,
+            x = 358f,
+            y = 350f - 26f,
+            colorType = ObstacleColor.BLUE,
+            facesRight = false,
+            attackTimer = 2.5f,
+            attackInterval = 4.2f
+          )
+        )
+        if (lvl >= 15) {
+          obstacleHazards.add(
+            ObstacleHazard(
+              id = 3,
+              x = 160f,
+              y = 460f - 26f,
+              colorType = ObstacleColor.YELLOW,
+              facesRight = (lvl % 2 == 0),
+              attackTimer = 1.8f,
+              attackInterval = 3.8f
+            )
+          )
+        }
+      }
+      2 -> {
+        // Ring Fortress: Gargoyles on outer ramparts
+        obstacleHazards.add(
+          ObstacleHazard(
+            id = 1,
+            x = 16f,
+            y = 340f - 26f,
+            colorType = ObstacleColor.GREEN,
+            facesRight = true,
+            attackTimer = 0.9f,
+            attackInterval = 3.6f
+          )
+        )
+        obstacleHazards.add(
+          ObstacleHazard(
+            id = 2,
+            x = 358f,
+            y = 340f - 26f,
+            colorType = ObstacleColor.BLUE,
+            facesRight = false,
+            attackTimer = 2.4f,
+            attackInterval = 4.0f
+          )
+        )
+        if (lvl >= 15) {
+          obstacleHazards.add(
+            ObstacleHazard(
+              id = 3,
+              x = 16f,
+              y = 210f - 26f,
+              colorType = ObstacleColor.RED,
+              facesRight = true,
+              attackTimer = 1.4f,
+              attackInterval = 3.7f
+            )
+          )
+        }
+      }
+      else -> {
+        // General & Boss Stages
+        obstacleHazards.add(
+          ObstacleHazard(
+            id = 1,
+            x = 16f,
+            y = 295f - 26f,
+            colorType = ObstacleColor.GREEN,
+            facesRight = true,
+            attackTimer = 1.0f,
+            attackInterval = 3.6f
+          )
+        )
+        obstacleHazards.add(
+          ObstacleHazard(
+            id = 2,
+            x = 358f,
+            y = 295f - 26f,
+            colorType = ObstacleColor.BLUE,
+            facesRight = false,
+            attackTimer = 2.6f,
+            attackInterval = 4.2f
+          )
+        )
+        if (lvl >= 15) {
+          obstacleHazards.add(
+            ObstacleHazard(
+              id = 3,
+              x = 16f,
+              y = 195f - 26f,
+              colorType = ObstacleColor.RED,
+              facesRight = true,
+              attackTimer = 1.6f,
+              attackInterval = 3.9f
+            )
+          )
+        }
+        if (lvl >= 50) {
+          obstacleHazards.add(
+            ObstacleHazard(
+              id = 4,
+              x = 358f,
+              y = 195f - 26f,
+              colorType = ObstacleColor.YELLOW,
+              facesRight = false,
+              attackTimer = 3.0f,
+              attackInterval = 4.4f
+            )
+          )
+        }
+      }
     }
 
     // Stage Name Generation
@@ -440,28 +632,61 @@ object LevelCatalog {
       val baseCount = 3 + (lvl / 45) // 3 enemies at lvl 1 -> 8 enemies at lvl 250+
       val totalEnemies = baseCount.coerceIn(3, 8)
 
-      // Available spawn tiers based on platforms
-      val spawnNodes = listOf(
-        Pair(60f, 400f),
-        Pair(300f, 400f),
-        Pair(170f, 320f),
-        Pair(60f, 250f),
-        Pair(310f, 250f),
-        Pair(180f, 150f),
-        Pair(70f, 80f),
-        Pair(290f, 80f)
-      )
+      // Available spawn tiers based on platforms and archetype
+      val spawnNodes = when (archIndex) {
+        0 -> listOf(
+          Pair(95f, 410f),
+          Pair(275f, 410f),
+          Pair(135f, 340f),
+          Pair(235f, 340f),
+          Pair(180f, 200f),
+          Pair(35f, 330f),
+          Pair(345f, 330f),
+          Pair(120f, 100f)
+        )
+        1 -> listOf(
+          Pair(85f, 300f),
+          Pair(190f, 300f),
+          Pair(295f, 300f),
+          Pair(50f, 410f),
+          Pair(320f, 410f),
+          Pair(50f, 100f),
+          Pair(150f, 100f),
+          Pair(250f, 100f)
+        )
+        2 -> listOf(
+          Pair(180f, 275f),
+          Pair(35f, 430f),
+          Pair(345f, 430f),
+          Pair(35f, 300f),
+          Pair(345f, 300f),
+          Pair(180f, 160f),
+          Pair(100f, 385f),
+          Pair(270f, 385f)
+        )
+        else -> listOf(
+          Pair(60f, 400f),
+          Pair(300f, 400f),
+          Pair(170f, 320f),
+          Pair(60f, 250f),
+          Pair(310f, 250f),
+          Pair(180f, 150f),
+          Pair(70f, 80f),
+          Pair(290f, 80f)
+        )
+      }
 
       for (i in 0 until totalEnemies) {
         val node = spawnNodes[i % spawnNodes.size]
         // Vary coordinates slightly with level seed
-        val offsetX = ((lvl * 11 + i * 17) % 30) - 15f
+        val offsetX = ((lvl * 11 + i * 17) % 24) - 12f
         val spawnX = (node.first + offsetX).coerceIn(30f, 350f)
         val spawnY = node.second
 
-        // Enemy type distribution based on progression
+        // Enemy type distribution based on progression & archetype
         val enemyType = when {
-          lvl < 5 -> EnemyType.WISP
+          archIndex == 2 && i % 2 == 1 -> EnemyType.PHANTOM // Spectral ghosts in Fortress (Screenshot 3)
+          lvl < 5 -> if (archIndex == 0 && i % 2 == 1) EnemyType.SKIMMER else EnemyType.WISP
           lvl < 20 -> if (i % 3 == 0) EnemyType.SKIMMER else EnemyType.WISP
           lvl < 50 -> when (i % 3) {
             0 -> EnemyType.WISP
@@ -472,8 +697,9 @@ object LevelCatalog {
             val roll = (lvl * 19 + i * 23) % 100
             when {
               roll < 35 -> EnemyType.WISP
-              roll < 70 -> EnemyType.SKIMMER
-              else -> EnemyType.SPIKELING
+              roll < 65 -> EnemyType.SKIMMER
+              roll < 85 -> EnemyType.SPIKELING
+              else -> EnemyType.PHANTOM
             }
           }
         }
