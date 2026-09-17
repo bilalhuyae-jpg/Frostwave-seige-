@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.app.Activity
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
@@ -36,11 +37,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ads.UnityAdsManager
 import com.example.ui.theme.AbyssMidnight
 import com.example.ui.theme.ArcadeYellow
 import com.example.ui.theme.FrostMint
@@ -240,8 +243,17 @@ fun LevelClearScreen(
 
           Spacer(modifier = Modifier.height(10.dp))
 
+          val context = LocalContext.current
+          val activity = context as? Activity
+
           Button(
-            onClick = onQuit,
+            onClick = {
+              if (activity != null) {
+                UnityAdsManager.showInterstitial(activity, onDismiss = onQuit)
+              } else {
+                onQuit()
+              }
+            },
             modifier = Modifier
               .fillMaxWidth()
               .height(46.dp)
@@ -258,8 +270,17 @@ fun LevelClearScreen(
             )
           }
         } else {
+          val context = LocalContext.current
+          val activity = context as? Activity
+
           Button(
-            onClick = onNextLevel,
+            onClick = {
+              if (activity != null) {
+                UnityAdsManager.showInterstitial(activity, onDismiss = onNextLevel)
+              } else {
+                onNextLevel()
+              }
+            },
             modifier = Modifier
               .fillMaxWidth()
               .height(52.dp)

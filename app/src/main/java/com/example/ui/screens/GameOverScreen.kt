@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -33,11 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ads.UnityAdsManager
 import com.example.audio.GameAudio
 import com.example.ui.theme.AbyssMidnight
 import com.example.ui.theme.ArcadeYellow
@@ -164,6 +168,9 @@ fun GameOverScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        val context = LocalContext.current
+        val activity = context as? Activity
+
         // Action Buttons
         if (countdown > 0) {
           Button(
@@ -188,12 +195,53 @@ fun GameOverScreen(
           Spacer(modifier = Modifier.height(10.dp))
         }
 
+        // Rewarded Video Ad: Free Extra Life / Revive
+        Button(
+          onClick = {
+            if (activity != null) {
+              UnityAdsManager.showRewarded(
+                activity = activity,
+                onRewardEarned = {
+                  countdownActive = 0
+                  onContinue()
+                }
+              )
+            } else {
+              countdownActive = 0
+              onContinue()
+            }
+          },
+          modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .testTag("watch_ad_revive_button"),
+          colors = ButtonDefaults.buttonColors(containerColor = ArcadeYellow, contentColor = AbyssMidnight),
+          shape = RoundedCornerShape(12.dp)
+        ) {
+          Icon(Icons.Default.PlayCircle, contentDescription = null, modifier = Modifier.size(18.dp))
+          Spacer(modifier = Modifier.width(8.dp))
+          Text(
+            text = "WATCH AD FOR FREE REVIVE",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Black,
+            fontFamily = FontFamily.Monospace
+          )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         Row(
           modifier = Modifier.fillMaxWidth(),
           horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
           Button(
-            onClick = onRetry,
+            onClick = {
+              if (activity != null) {
+                UnityAdsManager.showInterstitial(activity, onDismiss = onRetry)
+              } else {
+                onRetry()
+              }
+            },
             modifier = Modifier
               .weight(1f)
               .height(48.dp)
@@ -207,7 +255,13 @@ fun GameOverScreen(
           }
 
           Button(
-            onClick = onQuit,
+            onClick = {
+              if (activity != null) {
+                UnityAdsManager.showInterstitial(activity, onDismiss = onQuit)
+              } else {
+                onQuit()
+              }
+            },
             modifier = Modifier
               .weight(1f)
               .height(48.dp)

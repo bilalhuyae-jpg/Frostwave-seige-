@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -47,11 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ads.UnityAdsManager
 import com.example.audio.GameAudio
 import com.example.data.model.GameSettingsEntity
 import com.example.ui.theme.AbyssMidnight
@@ -355,6 +358,100 @@ fun SettingsScreen(
                 )
               )
             }
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(14.dp))
+
+      // Unity Ads Status & Test Card
+      val context = LocalContext.current
+      val activity = context as? Activity
+      var adStatusMsg by remember { mutableStateOf("") }
+
+      Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = IceSurface),
+        shape = RoundedCornerShape(16.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, IceBorder)
+      ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+          Text(
+            text = "UNITY ADS INTEGRATION",
+            color = NeonCyan,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace
+          )
+
+          Spacer(modifier = Modifier.height(6.dp))
+
+          Text(
+            text = "Game ID: ${UnityAdsManager.DEFAULT_GAME_ID}",
+            color = Color.LightGray,
+            fontSize = 11.sp,
+            fontFamily = FontFamily.Monospace
+          )
+
+          Spacer(modifier = Modifier.height(10.dp))
+
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+          ) {
+            Button(
+              onClick = {
+                if (activity != null) {
+                  UnityAdsManager.showInterstitial(activity) {
+                    adStatusMsg = "Interstitial Ad Closed / Finished"
+                  }
+                }
+              },
+              modifier = Modifier
+                .weight(1f)
+                .height(40.dp)
+                .testTag("test_interstitial_button"),
+              colors = ButtonDefaults.buttonColors(containerColor = AbyssMidnight, contentColor = NeonCyan),
+              shape = RoundedCornerShape(10.dp),
+              border = androidx.compose.foundation.BorderStroke(1.dp, NeonCyan)
+            ) {
+              Text("TEST INTERSTITIAL", fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+            }
+
+            Button(
+              onClick = {
+                if (activity != null) {
+                  UnityAdsManager.showRewarded(
+                    activity = activity,
+                    onRewardEarned = {
+                      adStatusMsg = "Rewarded Ad Completed! Reward Verified."
+                    },
+                    onDismiss = {
+                      if (adStatusMsg.isEmpty()) adStatusMsg = "Rewarded Ad Closed"
+                    }
+                  )
+                }
+              },
+              modifier = Modifier
+                .weight(1f)
+                .height(40.dp)
+                .testTag("test_rewarded_button"),
+              colors = ButtonDefaults.buttonColors(containerColor = AbyssMidnight, contentColor = ArcadeYellow),
+              shape = RoundedCornerShape(10.dp),
+              border = androidx.compose.foundation.BorderStroke(1.dp, ArcadeYellow)
+            ) {
+              Text("TEST REWARDED", fontSize = 9.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+            }
+          }
+
+          if (adStatusMsg.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+              text = adStatusMsg,
+              color = ArcadeYellow,
+              fontSize = 11.sp,
+              fontFamily = FontFamily.Monospace
+            )
           }
         }
       }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.ads.UnityAdsManager
 import com.example.ui.navigation.AppNavigation
 import com.example.ui.theme.FrostwaveTheme
 import com.example.viewmodel.FrostwaveViewModel
@@ -21,6 +22,9 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
+
+    // Initialize Unity Ads with the user's Game ID
+    UnityAdsManager.initialize(this)
 
     setContent {
       FrostwaveTheme {
