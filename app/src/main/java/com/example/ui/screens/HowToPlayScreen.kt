@@ -178,16 +178,16 @@ fun HowToPlayScreen(
 
       Spacer(modifier = Modifier.height(12.dp))
 
-      // Section 5: 300 Levels System
+      // Section 5: 1020 Levels System
       GuideCard(
-        title = "5. 300 LEVELS & 6 WORLDS",
+        title = "5. 1020 LEVELS & WORLDS",
         icon = Icons.Default.Star,
         iconTint = ArcadeYellow
       ) {
         Text(
-          text = "• 300 unique stages spanning 6 thematic realms: Glacier Caverns, Frost Citadel, Crystal Spire, Blizzard Ruins, Abyssal Rift, and Titan Throne.\n" +
+          text = "• 1020 unique stages spanning thematic realms: Glacier Caverns, Frost Citadel, Crystal Spire, Blizzard Ruins, Abyssal Rift, and Titan Throne.\n" +
             "• Jump directly to any stage or world anytime via the STAGE SELECT menu.\n" +
-            "• Bosses, enemy density, and platform architecture dynamically scale as you climb toward Stage 300!",
+            "• Bosses, enemy density, and platform architecture dynamically scale as you climb toward Stage 1020!",
           color = Color.White,
           fontSize = 12.sp,
           lineHeight = 18.sp

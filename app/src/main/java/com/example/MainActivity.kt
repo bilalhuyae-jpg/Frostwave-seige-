@@ -23,8 +23,12 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
 
-    // Initialize Unity Ads with the user's Game ID
-    UnityAdsManager.initialize(this)
+    // Initialize Unity Ads with safe fallback and testMode enabled
+    try {
+      UnityAdsManager.initialize(this, testMode = true)
+    } catch (e: Throwable) {
+      android.util.Log.e("MainActivity", "Failed to initialize Unity Ads: ${e.message}")
+    }
 
     setContent {
       FrostwaveTheme {

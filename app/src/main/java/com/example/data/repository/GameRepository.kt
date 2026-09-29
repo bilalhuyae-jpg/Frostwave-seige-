@@ -4,7 +4,9 @@ import com.example.data.local.AppDatabase
 import com.example.data.model.AchievementEntity
 import com.example.data.model.GameSettingsEntity
 import com.example.data.model.HighScoreEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class GameRepository(private val database: AppDatabase) {
   val topHighScores: Flow<List<HighScoreEntity>> = database.highScoreDao().getTopHighScores()
@@ -12,8 +14,8 @@ class GameRepository(private val database: AppDatabase) {
   val settings: Flow<GameSettingsEntity?> = database.gameSettingsDao().getSettings()
   val achievements: Flow<List<AchievementEntity>> = database.achievementDao().getAllAchievements()
 
-  suspend fun saveScore(playerName: String, score: Int, level: Int, lettersCount: Int): Long {
-    return database.highScoreDao().insertScore(
+  suspend fun saveScore(playerName: String, score: Int, level: Int, lettersCount: Int): Long = withContext(Dispatchers.IO) {
+    database.highScoreDao().insertScore(
       HighScoreEntity(
         playerName = playerName,
         score = score,
@@ -23,19 +25,19 @@ class GameRepository(private val database: AppDatabase) {
     )
   }
 
-  suspend fun updateSettings(settings: GameSettingsEntity) {
+  suspend fun updateSettings(settings: GameSettingsEntity) = withContext(Dispatchers.IO) {
     database.gameSettingsDao().insertOrUpdate(settings)
   }
 
-  suspend fun unlockNextLevel(completedLevel: Int) {
+  suspend fun unlockNextLevel(completedLevel: Int) = withContext(Dispatchers.IO) {
     val current = database.gameSettingsDao().getSettingsDirect() ?: GameSettingsEntity()
-    val nextLevel = (completedLevel + 1).coerceAtMost(300)
+    val nextLevel = (completedLevel + 1).coerceAtMost(1020)
     if (nextLevel > current.unlockedLevel) {
       database.gameSettingsDao().insertOrUpdate(current.copy(unlockedLevel = nextLevel))
     }
   }
 
-  suspend fun initializeDefaultsIfEmpty() {
+  suspend fun initializeDefaultsIfEmpty() = withContext(Dispatchers.IO) {
     val existing = database.gameSettingsDao().getSettingsDirect()
     if (existing == null) {
       val defaultSettings = GameSettingsEntity(unlockedLevel = 1)
@@ -87,7 +89,7 @@ class GameRepository(private val database: AppDatabase) {
     database.highScoreDao().insertScore(HighScoreEntity(playerName = "FROST_ACE", score = 12000, level = 2, bonusLettersCompleted = 2))
   }
 
-  suspend fun unlockAchievement(achievementId: String) {
+  suspend fun unlockAchievement(achievementId: String) = withContext(Dispatchers.IO) {
     database.achievementDao().updateAchievement(
       AchievementEntity(
         id = achievementId,

@@ -20,7 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,12 +42,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ads.UnityAdsManager
 import com.example.ui.theme.AbyssMidnight
 import com.example.ui.theme.ArcadeYellow
 import com.example.ui.theme.FrostMint
+import com.example.ui.theme.IceWhite
 import com.example.ui.theme.IceSurface
 import com.example.ui.theme.NeonCyan
 
@@ -61,7 +64,7 @@ fun LevelClearScreen(
   onPlay2P: () -> Unit = {},
   onQuit: () -> Unit = {}
 ) {
-  val isGameClear = levelNumber >= 300
+  val isGameClear = levelNumber >= 1020
   var startTally by remember { mutableStateOf(false) }
   LaunchedEffect(Unit) {
     startTally = true
@@ -80,7 +83,7 @@ fun LevelClearScreen(
   Box(
     modifier = Modifier
       .fillMaxSize()
-      .background(Color.Black.copy(alpha = 0.88f)),
+      .background(Color.Black.copy(alpha = 0.90f)),
     contentAlignment = Alignment.Center
   ) {
     Card(
@@ -98,29 +101,60 @@ fun LevelClearScreen(
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
         Icon(
-          imageVector = Icons.Default.CheckCircle,
+          imageVector = if (isGameClear) Icons.Default.EmojiEvents else Icons.Default.CheckCircle,
           contentDescription = null,
           tint = if (isGameClear) ArcadeYellow else FrostMint,
-          modifier = Modifier.size(48.dp)
+          modifier = Modifier.size(54.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-          text = if (isGameClear) "STAGE END" else "STAGE CLEAR!",
-          color = ArcadeYellow,
-          fontSize = if (isGameClear) 28.sp else 24.sp,
-          fontWeight = FontWeight.Black,
-          fontFamily = FontFamily.Monospace
-        )
+        if (isGameClear) {
+          // Stage 1020 Winning Board Header
+          Text(
+            text = "GAME END",
+            color = ArcadeYellow,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Black,
+            fontFamily = FontFamily.Monospace,
+            textAlign = TextAlign.Center
+          )
 
-        Text(
-          text = if (isGameClear) "ALL 300 STAGES COMPLETED!" else "STAGE $levelNumber / 300: $levelName",
-          color = NeonCyan,
-          fontSize = 12.sp,
-          fontWeight = FontWeight.Bold,
-          fontFamily = FontFamily.Monospace
-        )
+          Text(
+            text = "WINNING BOARD",
+            color = NeonCyan,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.ExtraBold,
+            fontFamily = FontFamily.Monospace,
+            textAlign = TextAlign.Center
+          )
+
+          Text(
+            text = "ALL 1020 STAGES CONQUERED!",
+            color = IceWhite,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 4.dp)
+          )
+        } else {
+          Text(
+            text = "STAGE CLEAR!",
+            color = ArcadeYellow,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Black,
+            fontFamily = FontFamily.Monospace
+          )
+
+          Text(
+            text = "STAGE $levelNumber / 1020: $levelName",
+            color = NeonCyan,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace
+          )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -180,6 +214,14 @@ fun LevelClearScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
           ) {
+            Text(text = "CURRENT SCORE:", color = Color.White, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+            Text(text = "$currentScore", color = NeonCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+          }
+          Spacer(modifier = Modifier.height(4.dp))
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+          ) {
             Text(text = "CLEAR BONUS:", color = Color.White, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
             Text(text = "+$baseBonus", color = FrostMint, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
           }
@@ -204,45 +246,7 @@ fun LevelClearScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         if (isGameClear) {
-          // Stage 300 Winning Board Actions: Play 1 Player, Play 2 Players, Main Menu
-          Button(
-            onClick = onPlay1P,
-            modifier = Modifier
-              .fillMaxWidth()
-              .height(50.dp)
-              .testTag("play_1_player_button"),
-            colors = ButtonDefaults.buttonColors(containerColor = NeonCyan, contentColor = AbyssMidnight),
-            shape = RoundedCornerShape(12.dp)
-          ) {
-            Text(
-              text = "PLAY 1 PLAYER",
-              fontSize = 13.sp,
-              fontWeight = FontWeight.Black,
-              fontFamily = FontFamily.Monospace
-            )
-          }
-
-          Spacer(modifier = Modifier.height(10.dp))
-
-          Button(
-            onClick = onPlay2P,
-            modifier = Modifier
-              .fillMaxWidth()
-              .height(50.dp)
-              .testTag("play_2_players_button"),
-            colors = ButtonDefaults.buttonColors(containerColor = ArcadeYellow, contentColor = AbyssMidnight),
-            shape = RoundedCornerShape(12.dp)
-          ) {
-            Text(
-              text = "PLAY 2 PLAYERS",
-              fontSize = 13.sp,
-              fontWeight = FontWeight.Black,
-              fontFamily = FontFamily.Monospace
-            )
-          }
-
-          Spacer(modifier = Modifier.height(10.dp))
-
+          // Stage 1020 Winning Board: Pure winning board with "GAME END - WINNING BOARD", final score, and no gameplay function
           val context = LocalContext.current
           val activity = context as? Activity
 
@@ -256,15 +260,15 @@ fun LevelClearScreen(
             },
             modifier = Modifier
               .fillMaxWidth()
-              .height(46.dp)
+              .height(48.dp)
               .testTag("winning_board_menu_button"),
             colors = ButtonDefaults.buttonColors(containerColor = AbyssMidnight, contentColor = Color.White),
             shape = RoundedCornerShape(12.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray)
+            border = androidx.compose.foundation.BorderStroke(1.5.dp, ArcadeYellow)
           ) {
             Text(
               text = "MAIN MENU",
-              fontSize = 12.sp,
+              fontSize = 13.sp,
               fontWeight = FontWeight.Bold,
               fontFamily = FontFamily.Monospace
             )
@@ -295,7 +299,7 @@ fun LevelClearScreen(
               fontFamily = FontFamily.Monospace
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
+            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
           }
         }
       }

@@ -30,141 +30,166 @@ object UnityAdsManager {
     private set
 
   /**
-   * Initializes the Unity Ads SDK.
-   * Safe to call multiple times (idempotent).
+   * Initializes the Unity Ads SDK safely.
+   * Safe to call multiple times (idempotent) and protected against all runtime crashes.
    */
-  fun initialize(context: Context, gameId: String = DEFAULT_GAME_ID, testMode: Boolean = false) {
-    if (UnityAds.isInitialized) {
-      isSdkInitialized = true
-      return
-    }
-
-    Log.d(TAG, "Initializing Unity Ads with Game ID: $gameId (testMode: $testMode)")
-    UnityAds.initialize(
-      context.applicationContext,
-      gameId,
-      testMode,
-      object : IUnityAdsInitializationListener {
-        override fun onInitializationComplete() {
-          isSdkInitialized = true
-          Log.d(TAG, "Unity Ads initialized successfully")
-          loadInterstitial()
-          loadRewarded()
-        }
-
-        override fun onInitializationFailed(
-          error: UnityAds.UnityAdsInitializationError?,
-          message: String?
-        ) {
-          isSdkInitialized = false
-          Log.w(TAG, "Unity Ads initialization failed: $error - $message")
-        }
+  fun initialize(context: Context, gameId: String = DEFAULT_GAME_ID, testMode: Boolean = true) {
+    try {
+      if (UnityAds.isInitialized) {
+        isSdkInitialized = true
+        return
       }
-    )
+
+      Log.d(TAG, "Initializing Unity Ads with Game ID: $gameId (testMode: $testMode)")
+      UnityAds.initialize(
+        context.applicationContext,
+        gameId,
+        testMode,
+        object : IUnityAdsInitializationListener {
+          override fun onInitializationComplete() {
+            isSdkInitialized = true
+            Log.d(TAG, "Unity Ads initialized successfully")
+            loadInterstitial()
+            loadRewarded()
+          }
+
+          override fun onInitializationFailed(
+            error: UnityAds.UnityAdsInitializationError?,
+            message: String?
+          ) {
+            isSdkInitialized = false
+            Log.w(TAG, "Unity Ads initialization failed: $error - $message")
+          }
+        }
+      )
+    } catch (e: Throwable) {
+      Log.e(TAG, "Exception while initializing Unity Ads (handled safely): ${e.message}", e)
+      isSdkInitialized = false
+    }
   }
 
   fun loadInterstitial(placementId: String = INTERSTITIAL_PLACEMENT) {
-    if (!UnityAds.isInitialized) return
+    try {
+      if (!UnityAds.isInitialized) return
 
-    UnityAds.load(
-      placementId,
-      object : IUnityAdsLoadListener {
-        override fun onUnityAdsAdLoaded(placementId: String?) {
-          Log.d(TAG, "Interstitial ad loaded: $placementId")
-          isInterstitialLoaded = true
-        }
+      UnityAds.load(
+        placementId,
+        object : IUnityAdsLoadListener {
+          override fun onUnityAdsAdLoaded(placementId: String?) {
+            Log.d(TAG, "Interstitial ad loaded: $placementId")
+            isInterstitialLoaded = true
+          }
 
-        override fun onUnityAdsFailedToLoad(
-          placementId: String?,
-          error: UnityAds.UnityAdsLoadError?,
-          message: String?
-        ) {
-          Log.w(TAG, "Failed to load interstitial ad: $placementId - $error ($message)")
-          isInterstitialLoaded = false
+          override fun onUnityAdsFailedToLoad(
+            placementId: String?,
+            error: UnityAds.UnityAdsLoadError?,
+            message: String?
+          ) {
+            Log.w(TAG, "Failed to load interstitial ad: $placementId - $error ($message)")
+            isInterstitialLoaded = false
+          }
         }
-      }
-    )
+      )
+    } catch (e: Throwable) {
+      Log.w(TAG, "Exception loading interstitial: ${e.message}")
+      isInterstitialLoaded = false
+    }
   }
 
   fun loadRewarded(placementId: String = REWARDED_PLACEMENT) {
-    if (!UnityAds.isInitialized) return
+    try {
+      if (!UnityAds.isInitialized) return
 
-    UnityAds.load(
-      placementId,
-      object : IUnityAdsLoadListener {
-        override fun onUnityAdsAdLoaded(placementId: String?) {
-          Log.d(TAG, "Rewarded ad loaded: $placementId")
-          isRewardedLoaded = true
-        }
+      UnityAds.load(
+        placementId,
+        object : IUnityAdsLoadListener {
+          override fun onUnityAdsAdLoaded(placementId: String?) {
+            Log.d(TAG, "Rewarded ad loaded: $placementId")
+            isRewardedLoaded = true
+          }
 
-        override fun onUnityAdsFailedToLoad(
-          placementId: String?,
-          error: UnityAds.UnityAdsLoadError?,
-          message: String?
-        ) {
-          Log.w(TAG, "Failed to load rewarded ad: $placementId - $error ($message)")
-          isRewardedLoaded = false
+          override fun onUnityAdsFailedToLoad(
+            placementId: String?,
+            error: UnityAds.UnityAdsLoadError?,
+            message: String?
+          ) {
+            Log.w(TAG, "Failed to load rewarded ad: $placementId - $error ($message)")
+            isRewardedLoaded = false
+          }
         }
-      }
-    )
+      )
+    } catch (e: Throwable) {
+      Log.w(TAG, "Exception loading rewarded ad: ${e.message}")
+      isRewardedLoaded = false
+    }
   }
 
   /**
-   * Shows an interstitial ad.
-   * If not loaded or fails, smoothly executes [onDismiss] to ensure the game continues.
+   * Shows an interstitial ad safely.
+   * If not loaded, uninitialized, or fails, smoothly executes [onDismiss] to ensure the game continues.
    */
   fun showInterstitial(
     activity: Activity,
     placementId: String = INTERSTITIAL_PLACEMENT,
     onDismiss: () -> Unit = {}
   ) {
-    if (!UnityAds.isInitialized) {
-      Log.d(TAG, "Unity Ads not initialized; skipping interstitial")
-      onDismiss()
-      return
-    }
-
-    UnityAds.show(
-      activity,
-      placementId,
-      UnityAdsShowOptions(),
-      object : IUnityAdsShowListener {
-        override fun onUnityAdsShowStart(placementId: String?) {
-          Log.d(TAG, "Interstitial ad show started: $placementId")
-        }
-
-        override fun onUnityAdsShowClick(placementId: String?) {
-          Log.d(TAG, "Interstitial ad clicked: $placementId")
-        }
-
-        override fun onUnityAdsShowComplete(
-          placementId: String?,
-          state: UnityAds.UnityAdsShowCompletionState?
-        ) {
-          Log.d(TAG, "Interstitial ad show completed: $placementId ($state)")
-          isInterstitialLoaded = false
-          loadInterstitial(placementId ?: INTERSTITIAL_PLACEMENT)
-          onDismiss()
-        }
-
-        override fun onUnityAdsShowFailure(
-          placementId: String?,
-          error: UnityAds.UnityAdsShowError?,
-          message: String?
-        ) {
-          Log.w(TAG, "Interstitial ad show failed: $placementId - $error ($message)")
-          isInterstitialLoaded = false
-          loadInterstitial(placementId ?: INTERSTITIAL_PLACEMENT)
-          onDismiss()
-        }
+    try {
+      if (activity.isFinishing || activity.isDestroyed) {
+        onDismiss()
+        return
       }
-    )
+
+      if (!UnityAds.isInitialized) {
+        Log.d(TAG, "Unity Ads not initialized; skipping interstitial safely")
+        onDismiss()
+        return
+      }
+
+      UnityAds.show(
+        activity,
+        placementId,
+        UnityAdsShowOptions(),
+        object : IUnityAdsShowListener {
+          override fun onUnityAdsShowStart(placementId: String?) {
+            Log.d(TAG, "Interstitial ad show started: $placementId")
+          }
+
+          override fun onUnityAdsShowClick(placementId: String?) {
+            Log.d(TAG, "Interstitial ad clicked: $placementId")
+          }
+
+          override fun onUnityAdsShowComplete(
+            placementId: String?,
+            state: UnityAds.UnityAdsShowCompletionState?
+          ) {
+            Log.d(TAG, "Interstitial ad show completed: $placementId ($state)")
+            isInterstitialLoaded = false
+            loadInterstitial(placementId ?: INTERSTITIAL_PLACEMENT)
+            activity.runOnUiThread { onDismiss() }
+          }
+
+          override fun onUnityAdsShowFailure(
+            placementId: String?,
+            error: UnityAds.UnityAdsShowError?,
+            message: String?
+          ) {
+            Log.w(TAG, "Interstitial ad show failed: $placementId - $error ($message)")
+            isInterstitialLoaded = false
+            loadInterstitial(placementId ?: INTERSTITIAL_PLACEMENT)
+            activity.runOnUiThread { onDismiss() }
+          }
+        }
+      )
+    } catch (e: Throwable) {
+      Log.e(TAG, "Error in showInterstitial (executing fallback): ${e.message}", e)
+      onDismiss()
+    }
   }
 
   /**
-   * Shows a rewarded ad.
+   * Shows a rewarded ad safely.
    * If watched completely, [onRewardEarned] is invoked.
-   * In all cases when the ad finishes or fails, [onDismiss] is invoked.
+   * In all cases when the ad finishes, fails, or cannot load, [onDismiss] is invoked.
    */
   fun showRewarded(
     activity: Activity,
@@ -172,49 +197,61 @@ object UnityAdsManager {
     onRewardEarned: () -> Unit,
     onDismiss: () -> Unit = {}
   ) {
-    if (!UnityAds.isInitialized) {
-      Log.d(TAG, "Unity Ads not initialized; executing fallback")
-      onDismiss()
-      return
-    }
-
-    UnityAds.show(
-      activity,
-      placementId,
-      UnityAdsShowOptions(),
-      object : IUnityAdsShowListener {
-        override fun onUnityAdsShowStart(placementId: String?) {
-          Log.d(TAG, "Rewarded ad show started: $placementId")
-        }
-
-        override fun onUnityAdsShowClick(placementId: String?) {
-          Log.d(TAG, "Rewarded ad clicked: $placementId")
-        }
-
-        override fun onUnityAdsShowComplete(
-          placementId: String?,
-          state: UnityAds.UnityAdsShowCompletionState?
-        ) {
-          Log.d(TAG, "Rewarded ad show completed: $placementId ($state)")
-          isRewardedLoaded = false
-          loadRewarded(placementId ?: REWARDED_PLACEMENT)
-          if (state == UnityAds.UnityAdsShowCompletionState.COMPLETED) {
-            onRewardEarned()
-          }
-          onDismiss()
-        }
-
-        override fun onUnityAdsShowFailure(
-          placementId: String?,
-          error: UnityAds.UnityAdsShowError?,
-          message: String?
-        ) {
-          Log.w(TAG, "Rewarded ad show failed: $placementId - $error ($message)")
-          isRewardedLoaded = false
-          loadRewarded(placementId ?: REWARDED_PLACEMENT)
-          onDismiss()
-        }
+    try {
+      if (activity.isFinishing || activity.isDestroyed) {
+        onDismiss()
+        return
       }
-    )
+
+      if (!UnityAds.isInitialized) {
+        Log.d(TAG, "Unity Ads not initialized; executing fallback safely")
+        onDismiss()
+        return
+      }
+
+      UnityAds.show(
+        activity,
+        placementId,
+        UnityAdsShowOptions(),
+        object : IUnityAdsShowListener {
+          override fun onUnityAdsShowStart(placementId: String?) {
+            Log.d(TAG, "Rewarded ad show started: $placementId")
+          }
+
+          override fun onUnityAdsShowClick(placementId: String?) {
+            Log.d(TAG, "Rewarded ad clicked: $placementId")
+          }
+
+          override fun onUnityAdsShowComplete(
+            placementId: String?,
+            state: UnityAds.UnityAdsShowCompletionState?
+          ) {
+            Log.d(TAG, "Rewarded ad show completed: $placementId ($state)")
+            isRewardedLoaded = false
+            loadRewarded(placementId ?: REWARDED_PLACEMENT)
+            activity.runOnUiThread {
+              if (state == UnityAds.UnityAdsShowCompletionState.COMPLETED) {
+                onRewardEarned()
+              }
+              onDismiss()
+            }
+          }
+
+          override fun onUnityAdsShowFailure(
+            placementId: String?,
+            error: UnityAds.UnityAdsShowError?,
+            message: String?
+          ) {
+            Log.w(TAG, "Rewarded ad show failed: $placementId - $error ($message)")
+            isRewardedLoaded = false
+            loadRewarded(placementId ?: REWARDED_PLACEMENT)
+            activity.runOnUiThread { onDismiss() }
+          }
+        }
+      )
+    } catch (e: Throwable) {
+      Log.e(TAG, "Error in showRewarded (executing fallback): ${e.message}", e)
+      onDismiss()
+    }
   }
 }

@@ -408,7 +408,7 @@ fun TopArcadeHud(
               .padding(horizontal = 8.dp, vertical = 3.dp)
           ) {
             Text(
-              text = "STAGE ${engine.currentLevelIdx + 1}/300",
+              text = "STAGE ${engine.currentLevelIdx + 1}/1020",
               color = NeonCyan,
               fontSize = 11.sp,
               fontWeight = FontWeight.Black,

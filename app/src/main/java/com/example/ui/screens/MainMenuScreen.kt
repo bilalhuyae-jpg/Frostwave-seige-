@@ -276,8 +276,8 @@ fun MainMenuScreen(
 
       // Stage Select Action (300 Levels)
       MenuActionButton(
-        text = "STAGE SELECT (300 LEVELS)",
-        subtitle = "Choose from 6 Worlds & 300 Stages",
+        text = "STAGE SELECT (1020 LEVELS)",
+        subtitle = "Choose from 21 Worlds & 1020 Stages",
         icon = Icons.Default.GridView,
         color = ArcadeYellow,
         textColor = AbyssMidnight,

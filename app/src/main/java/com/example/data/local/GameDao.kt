@@ -19,7 +19,7 @@ interface HighScoreDao {
   fun getHighestScore(): Flow<Int?>
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  suspend fun insertScore(score: HighScoreEntity): Long
+  fun insertScore(score: HighScoreEntity): Long
 }
 
 @Dao
@@ -28,10 +28,10 @@ interface GameSettingsDao {
   fun getSettings(): Flow<GameSettingsEntity?>
 
   @Query("SELECT * FROM game_settings WHERE id = 1 LIMIT 1")
-  suspend fun getSettingsDirect(): GameSettingsEntity?
+  fun getSettingsDirect(): GameSettingsEntity?
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
-  suspend fun insertOrUpdate(settings: GameSettingsEntity)
+  fun insertOrUpdate(settings: GameSettingsEntity): Long
 }
 
 @Dao
@@ -40,8 +40,8 @@ interface AchievementDao {
   fun getAllAchievements(): Flow<List<AchievementEntity>>
 
   @Insert(onConflict = OnConflictStrategy.IGNORE)
-  suspend fun insertDefaultAchievements(achievements: List<AchievementEntity>)
+  fun insertDefaultAchievements(achievements: List<AchievementEntity>): List<Long>
 
   @Update
-  suspend fun updateAchievement(achievement: AchievementEntity)
+  fun updateAchievement(achievement: AchievementEntity): Int
 }

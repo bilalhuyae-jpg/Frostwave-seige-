@@ -1,7 +1,5 @@
 package com.example.game
 
-import kotlin.math.roundToInt
-
 // Platform rectangle in virtual game coordinates
 data class Platform(
   val x: Float,
@@ -12,10 +10,10 @@ data class Platform(
 )
 
 enum class ObstacleColor(val primaryColor: Long, val mouthGlow: Long, val displayName: String) {
-  GREEN(0xFF2ECC71, 0xFFFF5722, "Green Gargoyle"),   // Green fire-spitting totem (Matches user screenshot)
-  BLUE(0xFF29B6F6, 0xFF00E5FF, "Blue Frostbeast"),    // Blue frost totem
-  RED(0xFFE74C3C, 0xFFFF9800, "Red Emberclaw"),       // Red demon totem
-  YELLOW(0xFFFFCA28, 0xFFFF5722, "Golden Dragon")     // Gold beast totem
+  GREEN(0xFF2ECC71, 0xFFFF5722, "Green Gargoyle"),
+  BLUE(0xFF29B6F6, 0xFF00E5FF, "Blue Frostbeast"),
+  RED(0xFFE74C3C, 0xFFFF9800, "Red Emberclaw"),
+  YELLOW(0xFFFFCA28, 0xFFFF5722, "Golden Dragon")
 }
 
 data class ObstacleHazard(
@@ -150,271 +148,323 @@ data class EnemySpawn(
 object LevelCatalog {
   const val GAME_WIDTH = 400f
   const val GAME_HEIGHT = 600f
-  const val TOTAL_LEVELS = 300
+  const val TOTAL_LEVELS = 1020
 
-  // Floor platform common to all stages
+  // Floor platform common to all stages (solid base floor)
   private val baseFloor = Platform(x = 0f, y = 540f, width = 400f, height = 24f, isOneWay = false)
 
-  // 10 Distinct Architectural Platform Archetypes featuring iconic Snow Bros layouts
+  // 10 Distinct Architectural Platform Archetypes featuring iconic arcade layouts.
+  // In every single archetype, tier elevations are spaced by 75f-80f, and all jumpable platforms
+  // have isOneWay = true, providing clear and guaranteed upward climbing routes.
   private val archetypes: List<(Int) -> List<Platform>> = listOf(
-    // 0: Pyramid Sanctum (Directly from Screenshot 1)
-    // Central stepped mountain with side ledges and apex perch
+    // 0: Pyramid Sanctum (Stages 1, 11, 21, ...)
+    // Central stepped mountain with left and right wing staircases
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 75f, y = 450f, width = 250f),  // Pyramid Tier 1 (Base)
-        Platform(x = 110f, y = 380f, width = 180f), // Pyramid Tier 2
-        Platform(x = 145f, y = 310f, width = 110f), // Pyramid Tier 3
-        Platform(x = 175f, y = 240f, width = 50f),  // Pyramid Apex
-        Platform(x = 10f, y = 370f, width = 65f),   // Left Mid Ledge
-        Platform(x = 325f, y = 370f, width = 65f),  // Right Mid Ledge
-        Platform(x = 10f, y = 240f, width = 65f),   // Left High Ledge
-        Platform(x = 325f, y = 240f, width = 65f),  // Right High Ledge
-        Platform(x = 80f, y = 160f, width = 70f),   // Upper Sky Left
-        Platform(x = 250f, y = 160f, width = 70f),  // Upper Sky Right
-        Platform(x = 130f, y = 100f, width = 140f), // Ceiling Bridge
-        Platform(x = 10f, y = 100f, width = 60f),   // Left Crow Nest
-        Platform(x = 330f, y = 100f, width = 60f),  // Right Crow Nest
-        Platform(x = 175f, y = 170f, width = 50f)   // Apex Cloud Step
-      )
-    },
-
-    // 1: Vertical Chutes & Comb Wells (Directly from Screenshot 2)
-    // Horizontal comb spine with vertical dividing teeth forming drop wells, lower pits, top ledges
-    { _ ->
-      listOf(
-        baseFloor,
-        Platform(x = 20f, y = 350f, width = 360f),  // Comb Horizontal Spine
-        Platform(x = 30f, y = 260f, width = 22f, height = 90f, isOneWay = false),  // Chute Wall 1
-        Platform(x = 135f, y = 260f, width = 22f, height = 90f, isOneWay = false), // Chute Wall 2
-        Platform(x = 245f, y = 260f, width = 22f, height = 90f, isOneWay = false), // Chute Wall 3
-        Platform(x = 350f, y = 260f, width = 22f, height = 90f, isOneWay = false), // Chute Wall 4
-        Platform(x = 15f, y = 140f, width = 75f),   // Upper Ledge 1
-        Platform(x = 115f, y = 140f, width = 75f),  // Upper Ledge 2
-        Platform(x = 210f, y = 140f, width = 75f),  // Upper Ledge 3
-        Platform(x = 310f, y = 140f, width = 75f),  // Upper Ledge 4
-        Platform(x = 30f, y = 460f, width = 95f),   // Lower Pit Left
-        Platform(x = 155f, y = 460f, width = 90f),  // Lower Pit Center
-        Platform(x = 275f, y = 460f, width = 95f),  // Lower Pit Right
-        Platform(x = 130f, y = 70f, width = 140f),  // Skylight Beam
-        Platform(x = 10f, y = 70f, width = 60f),    // Attic Left
-        Platform(x = 330f, y = 70f, width = 60f)    // Attic Right
-      )
-    },
-
-    // 2: Octagonal Ring Fortress & Central Altar (Directly from Screenshot 3)
-    // Hollow enclosed sanctum with floating altar in the middle and perimeter stairs
-    { _ ->
-      listOf(
-        baseFloor,
-        Platform(x = 130f, y = 200f, width = 140f), // Fortress Top Arch
-        Platform(x = 80f, y = 265f, width = 55f),   // Left Upper Slope
-        Platform(x = 80f, y = 355f, width = 55f),   // Left Lower Slope
-        Platform(x = 265f, y = 265f, width = 55f),  // Right Upper Slope
-        Platform(x = 265f, y = 355f, width = 55f),  // Right Lower Slope
-        Platform(x = 115f, y = 425f, width = 170f), // Fortress Floor
-        Platform(x = 170f, y = 315f, width = 60f),  // Central Altar Pedestal
-        Platform(x = 10f, y = 470f, width = 65f),   // Outer Stair Left 1
-        Platform(x = 325f, y = 470f, width = 65f),  // Outer Stair Right 1
-        Platform(x = 10f, y = 340f, width = 65f),   // Outer Stair Left 2
-        Platform(x = 325f, y = 340f, width = 65f),  // Outer Stair Right 2
-        Platform(x = 10f, y = 210f, width = 65f),   // Outer Stair Left 3
-        Platform(x = 325f, y = 210f, width = 65f),  // Outer Stair Right 3
-        Platform(x = 110f, y = 110f, width = 180f), // Fortress Spire Roof
-        Platform(x = 160f, y = 480f, width = 80f)   // Base Pedestal Ledge
-      )
-    },
-
-    // 3: Titan Throne Boss Arena (Directly from Screenshot 4)
-    // Multi-tier battle ramparts above the giant boss chamber with checkerboard ledges
-    { _ ->
-      listOf(
-        baseFloor,
-        Platform(x = 50f, y = 295f, width = 300f),  // Main Cross Highway
-        Platform(x = 10f, y = 405f, width = 95f),   // Lower Wing Left
-        Platform(x = 295f, y = 405f, width = 95f),  // Lower Wing Right
-        Platform(x = 20f, y = 195f, width = 135f),  // Sniping Deck Left
-        Platform(x = 245f, y = 195f, width = 135f), // Sniping Deck Right
-        Platform(x = 115f, y = 95f, width = 170f),  // High Command Bridge
-        Platform(x = 160f, y = 405f, width = 80f),  // Boss Head Hazard Step
-        Platform(x = 10f, y = 95f, width = 85f),    // High Left Turret
-        Platform(x = 305f, y = 95f, width = 85f),   // High Right Turret
-        Platform(x = 160f, y = 195f, width = 80f),  // Middle Drop Shaft
-        Platform(x = 10f, y = 490f, width = 60f),   // Low Left Bunker
-        Platform(x = 330f, y = 490f, width = 60f),  // Low Right Bunker
-        Platform(x = 170f, y = 490f, width = 60f),  // Low Center Shield
-        Platform(x = 120f, y = 245f, width = 160f)  // Mid-Tier Deflector
-      )
-    },
-
-    // 4: Dual Watchtowers & Center Chasm
-    { _ ->
-      listOf(
-        baseFloor,
-        Platform(x = 20f, y = 440f, width = 120f),
-        Platform(x = 260f, y = 440f, width = 120f),
-        Platform(x = 25f, y = 330f, width = 110f),
-        Platform(x = 265f, y = 330f, width = 110f),
-        Platform(x = 120f, y = 270f, width = 160f),
-        Platform(x = 20f, y = 210f, width = 120f),
-        Platform(x = 260f, y = 210f, width = 120f),
-        Platform(x = 100f, y = 110f, width = 200f),
-        Platform(x = 140f, y = 370f, width = 120f),
-        Platform(x = 30f, y = 100f, width = 60f),
-        Platform(x = 310f, y = 100f, width = 60f),
-        Platform(x = 150f, y = 480f, width = 100f),
-        Platform(x = 80f, y = 190f, width = 60f),
-        Platform(x = 260f, y = 190f, width = 60f),
-        Platform(x = 160f, y = 50f, width = 80f)
-      )
-    },
-
-    // 5: Grand Zig-Zag Switchback
-    { _ ->
-      listOf(
-        baseFloor,
-        Platform(x = 20f, y = 460f, width = 260f),
-        Platform(x = 120f, y = 380f, width = 260f),
-        Platform(x = 20f, y = 300f, width = 260f),
-        Platform(x = 120f, y = 210f, width = 260f),
-        Platform(x = 70f, y = 120f, width = 260f),
+        // Tier 1 (y = 460) - 80px above floor
+        Platform(x = 20f, y = 460f, width = 85f),
+        Platform(x = 125f, y = 460f, width = 150f),
         Platform(x = 295f, y = 460f, width = 85f),
-        Platform(x = 20f, y = 380f, width = 85f),
-        Platform(x = 295f, y = 300f, width = 85f),
-        Platform(x = 20f, y = 210f, width = 85f),
-        Platform(x = 150f, y = 500f, width = 100f),
-        Platform(x = 10f, y = 120f, width = 50f),
-        Platform(x = 340f, y = 120f, width = 50f),
-        Platform(x = 120f, y = 60f, width = 160f),
-        Platform(x = 160f, y = 340f, width = 80f),
-        Platform(x = 160f, y = 170f, width = 80f)
+        // Tier 2 (y = 380) - 80px above Tier 1
+        Platform(x = 15f, y = 380f, width = 90f),
+        Platform(x = 140f, y = 380f, width = 120f),
+        Platform(x = 295f, y = 380f, width = 90f),
+        // Tier 3 (y = 300) - 80px above Tier 2
+        Platform(x = 25f, y = 300f, width = 85f),
+        Platform(x = 150f, y = 300f, width = 100f),
+        Platform(x = 290f, y = 300f, width = 85f),
+        // Tier 4 (y = 220) - 80px above Tier 3
+        Platform(x = 35f, y = 220f, width = 85f),
+        Platform(x = 160f, y = 220f, width = 80f),
+        Platform(x = 280f, y = 220f, width = 85f),
+        // Tier 5 (y = 140) - 80px above Tier 4
+        Platform(x = 25f, y = 140f, width = 100f),
+        Platform(x = 160f, y = 140f, width = 80f),
+        Platform(x = 275f, y = 140f, width = 100f),
+        // Crown Lookout (y = 75)
+        Platform(x = 125f, y = 75f, width = 150f)
       )
     },
 
-    // 6: Floating Diamond Sanctum
+    // 1: Chutes & Wells / Comb Towers (Stages 2, 12, 22, ... - Specifically fixed for full upward mobility)
+    // 3 parallel vertical climbing channels (Left, Center, Right) across all 5 tiers
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 135f, y = 460f, width = 130f),
-        Platform(x = 35f, y = 370f, width = 120f),
-        Platform(x = 245f, y = 370f, width = 120f),
-        Platform(x = 135f, y = 280f, width = 130f),
-        Platform(x = 35f, y = 190f, width = 120f),
-        Platform(x = 245f, y = 190f, width = 120f),
-        Platform(x = 135f, y = 100f, width = 130f),
-        Platform(x = 10f, y = 460f, width = 80f),
-        Platform(x = 310f, y = 460f, width = 80f),
-        Platform(x = 10f, y = 280f, width = 80f),
-        Platform(x = 310f, y = 280f, width = 80f),
-        Platform(x = 10f, y = 100f, width = 80f),
-        Platform(x = 310f, y = 100f, width = 80f),
-        Platform(x = 150f, y = 500f, width = 100f),
-        Platform(x = 160f, y = 40f, width = 80f)
-      )
-    },
-
-    // 7: Triple Column Cascade
-    { _ ->
-      listOf(
-        baseFloor,
-        Platform(x = 25f, y = 440f, width = 90f),
-        Platform(x = 155f, y = 440f, width = 90f),
-        Platform(x = 285f, y = 440f, width = 90f),
-        Platform(x = 85f, y = 330f, width = 100f),
-        Platform(x = 215f, y = 330f, width = 100f),
-        Platform(x = 25f, y = 220f, width = 90f),
+        // Tier 1 (y = 460) - Immediate 80px hop from floor across full width
+        Platform(x = 20f, y = 460f, width = 105f),
+        Platform(x = 145f, y = 460f, width = 110f),
+        Platform(x = 275f, y = 460f, width = 105f),
+        // Tier 2 (y = 380) - Clear comb shelves with jump lanes
+        Platform(x = 25f, y = 380f, width = 105f),
+        Platform(x = 145f, y = 380f, width = 110f),
+        Platform(x = 270f, y = 380f, width = 105f),
+        // Tier 3 (y = 300) - Mid-tier jump platforms
+        Platform(x = 20f, y = 300f, width = 110f),
+        Platform(x = 150f, y = 300f, width = 100f),
+        Platform(x = 270f, y = 300f, width = 110f),
+        // Tier 4 (y = 220) - High terrace steps
+        Platform(x = 30f, y = 220f, width = 105f),
         Platform(x = 155f, y = 220f, width = 90f),
-        Platform(x = 285f, y = 220f, width = 90f),
-        Platform(x = 100f, y = 110f, width = 200f),
-        Platform(x = 15f, y = 110f, width = 60f),
-        Platform(x = 325f, y = 110f, width = 60f),
-        Platform(x = 90f, y = 490f, width = 80f),
-        Platform(x = 230f, y = 490f, width = 80f),
-        Platform(x = 150f, y = 160f, width = 100f),
-        Platform(x = 140f, y = 50f, width = 120f)
+        Platform(x = 265f, y = 220f, width = 105f),
+        // Tier 5 (y = 140) - Attic decks
+        Platform(x = 20f, y = 140f, width = 110f),
+        Platform(x = 145f, y = 140f, width = 110f),
+        Platform(x = 270f, y = 140f, width = 110f),
+        // Crown Sky Deck (y = 75)
+        Platform(x = 115f, y = 75f, width = 170f)
       )
     },
 
-    // 8: Hourglass Funnel
+    // 2: Octagonal Ring Fortress & Central Altar (Stages 3, 13, 23, ...)
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 20f, y = 460f, width = 150f),
-        Platform(x = 230f, y = 460f, width = 150f),
-        Platform(x = 110f, y = 370f, width = 180f),
-        Platform(x = 145f, y = 280f, width = 110f),
-        Platform(x = 20f, y = 190f, width = 150f),
-        Platform(x = 230f, y = 190f, width = 150f),
-        Platform(x = 90f, y = 100f, width = 220f),
-        Platform(x = 10f, y = 370f, width = 70f),
-        Platform(x = 320f, y = 370f, width = 70f),
-        Platform(x = 10f, y = 280f, width = 80f),
-        Platform(x = 310f, y = 280f, width = 80f),
-        Platform(x = 10f, y = 100f, width = 60f),
-        Platform(x = 330f, y = 100f, width = 60f),
-        Platform(x = 150f, y = 490f, width = 100f),
-        Platform(x = 160f, y = 50f, width = 80f)
+        // Tier 1 (y = 460)
+        Platform(x = 15f, y = 460f, width = 90f),
+        Platform(x = 140f, y = 460f, width = 120f),
+        Platform(x = 295f, y = 460f, width = 90f),
+        // Tier 2 (y = 380)
+        Platform(x = 25f, y = 380f, width = 95f),
+        Platform(x = 145f, y = 380f, width = 110f),
+        Platform(x = 280f, y = 380f, width = 95f),
+        // Tier 3 (y = 300)
+        Platform(x = 20f, y = 300f, width = 90f),
+        Platform(x = 135f, y = 300f, width = 130f),
+        Platform(x = 290f, y = 300f, width = 90f),
+        // Tier 4 (y = 220)
+        Platform(x = 35f, y = 220f, width = 95f),
+        Platform(x = 150f, y = 220f, width = 100f),
+        Platform(x = 270f, y = 220f, width = 95f),
+        // Tier 5 (y = 140)
+        Platform(x = 25f, y = 140f, width = 105f),
+        Platform(x = 145f, y = 140f, width = 110f),
+        Platform(x = 270f, y = 140f, width = 105f),
+        // Spire Roof (y = 75)
+        Platform(x = 120f, y = 75f, width = 160f)
       )
     },
 
-    // 9: Labyrinth Fortress Keep
+    // 3: Titan Throne Arena (Boss Stages: 10, 20, 30, ... 1020)
     { _ ->
       listOf(
         baseFloor,
-        Platform(x = 20f, y = 470f, width = 100f),
-        Platform(x = 160f, y = 470f, width = 80f),
-        Platform(x = 280f, y = 470f, width = 100f),
-        Platform(x = 80f, y = 390f, width = 140f),
-        Platform(x = 260f, y = 390f, width = 110f),
-        Platform(x = 30f, y = 300f, width = 120f),
-        Platform(x = 190f, y = 300f, width = 140f),
-        Platform(x = 80f, y = 210f, width = 160f),
-        Platform(x = 270f, y = 210f, width = 100f),
-        Platform(x = 110f, y = 110f, width = 180f),
-        Platform(x = 20f, y = 110f, width = 60f),
-        Platform(x = 320f, y = 110f, width = 60f),
-        Platform(x = 140f, y = 430f, width = 120f),
-        Platform(x = 20f, y = 210f, width = 50f),
-        Platform(x = 150f, y = 50f, width = 100f)
+        // Tier 1 (y = 460)
+        Platform(x = 20f, y = 460f, width = 110f),
+        Platform(x = 155f, y = 460f, width = 90f),
+        Platform(x = 270f, y = 460f, width = 110f),
+        // Tier 2 (y = 380)
+        Platform(x = 30f, y = 380f, width = 100f),
+        Platform(x = 145f, y = 380f, width = 110f),
+        Platform(x = 270f, y = 380f, width = 100f),
+        // Tier 3 (y = 300)
+        Platform(x = 20f, y = 300f, width = 110f),
+        Platform(x = 140f, y = 300f, width = 120f),
+        Platform(x = 270f, y = 300f, width = 110f),
+        // Tier 4 (y = 220)
+        Platform(x = 25f, y = 220f, width = 105f),
+        Platform(x = 150f, y = 220f, width = 100f),
+        Platform(x = 270f, y = 220f, width = 105f),
+        // Tier 5 (y = 140)
+        Platform(x = 20f, y = 140f, width = 110f),
+        Platform(x = 145f, y = 140f, width = 110f),
+        Platform(x = 270f, y = 140f, width = 110f),
+        // High Command Deck (y = 75)
+        Platform(x = 110f, y = 75f, width = 180f)
+      )
+    },
+
+    // 4: Twin Watchtowers & Center Bridge (Stages 5, 15, 25, ...)
+    { _ ->
+      listOf(
+        baseFloor,
+        // Tier 1 (y = 460)
+        Platform(x = 20f, y = 460f, width = 120f),
+        Platform(x = 165f, y = 460f, width = 70f),
+        Platform(x = 260f, y = 460f, width = 120f),
+        // Tier 2 (y = 380)
+        Platform(x = 25f, y = 380f, width = 110f),
+        Platform(x = 155f, y = 380f, width = 90f),
+        Platform(x = 265f, y = 380f, width = 110f),
+        // Tier 3 (y = 300)
+        Platform(x = 20f, y = 300f, width = 120f),
+        Platform(x = 150f, y = 300f, width = 100f),
+        Platform(x = 260f, y = 300f, width = 120f),
+        // Tier 4 (y = 220)
+        Platform(x = 25f, y = 220f, width = 110f),
+        Platform(x = 155f, y = 220f, width = 90f),
+        Platform(x = 265f, y = 220f, width = 110f),
+        // Tier 5 (y = 140)
+        Platform(x = 20f, y = 140f, width = 120f),
+        Platform(x = 145f, y = 140f, width = 110f),
+        Platform(x = 260f, y = 140f, width = 120f),
+        // Watchtower Spires (y = 75)
+        Platform(x = 35f, y = 75f, width = 90f),
+        Platform(x = 275f, y = 75f, width = 90f)
+      )
+    },
+
+    // 5: Grand Zig-Zag Switchback (Stages 6, 16, 26, ...)
+    { _ ->
+      listOf(
+        baseFloor,
+        // Tier 1 (y = 460)
+        Platform(x = 20f, y = 460f, width = 260f),
+        Platform(x = 305f, y = 460f, width = 75f),
+        // Tier 2 (y = 380)
+        Platform(x = 20f, y = 380f, width = 75f),
+        Platform(x = 120f, y = 380f, width = 260f),
+        // Tier 3 (y = 300)
+        Platform(x = 20f, y = 300f, width = 260f),
+        Platform(x = 305f, y = 300f, width = 75f),
+        // Tier 4 (y = 220)
+        Platform(x = 20f, y = 220f, width = 75f),
+        Platform(x = 120f, y = 220f, width = 260f),
+        // Tier 5 (y = 140)
+        Platform(x = 40f, y = 140f, width = 140f),
+        Platform(x = 220f, y = 140f, width = 140f),
+        // Apex Bridge (y = 75)
+        Platform(x = 115f, y = 75f, width = 170f)
+      )
+    },
+
+    // 6: Floating Diamond Sanctum (Stages 7, 17, 27, ...)
+    { _ ->
+      listOf(
+        baseFloor,
+        // Tier 1 (y = 460)
+        Platform(x = 25f, y = 460f, width = 95f),
+        Platform(x = 145f, y = 460f, width = 110f),
+        Platform(x = 280f, y = 460f, width = 95f),
+        // Tier 2 (y = 380)
+        Platform(x = 40f, y = 380f, width = 100f),
+        Platform(x = 260f, y = 380f, width = 100f),
+        // Tier 3 (y = 300)
+        Platform(x = 20f, y = 300f, width = 95f),
+        Platform(x = 140f, y = 300f, width = 120f),
+        Platform(x = 285f, y = 300f, width = 95f),
+        // Tier 4 (y = 220)
+        Platform(x = 40f, y = 220f, width = 100f),
+        Platform(x = 260f, y = 220f, width = 100f),
+        // Tier 5 (y = 140)
+        Platform(x = 25f, y = 140f, width = 95f),
+        Platform(x = 145f, y = 140f, width = 110f),
+        Platform(x = 280f, y = 140f, width = 95f),
+        // Top Prism (y = 75)
+        Platform(x = 130f, y = 75f, width = 140f)
+      )
+    },
+
+    // 7: Triple Column Cascade (Stages 8, 18, 28, ...)
+    { _ ->
+      listOf(
+        baseFloor,
+        // Tier 1 (y = 460)
+        Platform(x = 25f, y = 460f, width = 90f),
+        Platform(x = 155f, y = 460f, width = 90f),
+        Platform(x = 285f, y = 460f, width = 90f),
+        // Tier 2 (y = 380)
+        Platform(x = 85f, y = 380f, width = 100f),
+        Platform(x = 215f, y = 380f, width = 100f),
+        // Tier 3 (y = 300)
+        Platform(x = 25f, y = 300f, width = 90f),
+        Platform(x = 155f, y = 300f, width = 90f),
+        Platform(x = 285f, y = 300f, width = 90f),
+        // Tier 4 (y = 220)
+        Platform(x = 85f, y = 220f, width = 100f),
+        Platform(x = 215f, y = 220f, width = 100f),
+        // Tier 5 (y = 140)
+        Platform(x = 25f, y = 140f, width = 90f),
+        Platform(x = 155f, y = 140f, width = 90f),
+        Platform(x = 285f, y = 140f, width = 90f),
+        // Crown Deck (y = 75)
+        Platform(x = 110f, y = 75f, width = 180f)
+      )
+    },
+
+    // 8: Hourglass Funnel (Stages 9, 19, 29, ...)
+    { _ ->
+      listOf(
+        baseFloor,
+        // Tier 1 (y = 460)
+        Platform(x = 20f, y = 460f, width = 130f),
+        Platform(x = 250f, y = 460f, width = 130f),
+        // Tier 2 (y = 380)
+        Platform(x = 65f, y = 380f, width = 105f),
+        Platform(x = 230f, y = 380f, width = 105f),
+        // Tier 3 (y = 300)
+        Platform(x = 15f, y = 300f, width = 75f),
+        Platform(x = 130f, y = 300f, width = 140f),
+        Platform(x = 310f, y = 300f, width = 75f),
+        // Tier 4 (y = 220)
+        Platform(x = 65f, y = 220f, width = 105f),
+        Platform(x = 230f, y = 220f, width = 105f),
+        // Tier 5 (y = 140)
+        Platform(x = 20f, y = 140f, width = 130f),
+        Platform(x = 250f, y = 140f, width = 130f),
+        // Top Funnel Crown (y = 75)
+        Platform(x = 115f, y = 75f, width = 170f)
+      )
+    },
+
+    // 9: Labyrinth Fortress Keep (Stages 4, 14, 24, ...)
+    { _ ->
+      listOf(
+        baseFloor,
+        // Tier 1 (y = 460)
+        Platform(x = 25f, y = 460f, width = 100f),
+        Platform(x = 150f, y = 460f, width = 100f),
+        Platform(x = 275f, y = 460f, width = 100f),
+        // Tier 2 (y = 380)
+        Platform(x = 75f, y = 380f, width = 115f),
+        Platform(x = 210f, y = 380f, width = 115f),
+        // Tier 3 (y = 300)
+        Platform(x = 25f, y = 300f, width = 100f),
+        Platform(x = 150f, y = 300f, width = 100f),
+        Platform(x = 275f, y = 300f, width = 100f),
+        // Tier 4 (y = 220)
+        Platform(x = 75f, y = 220f, width = 115f),
+        Platform(x = 210f, y = 220f, width = 115f),
+        // Tier 5 (y = 140)
+        Platform(x = 30f, y = 140f, width = 95f),
+        Platform(x = 145f, y = 140f, width = 110f),
+        Platform(x = 275f, y = 140f, width = 95f),
+        // High Citadel Deck (y = 75)
+        Platform(x = 110f, y = 75f, width = 180f)
       )
     }
   )
 
   /**
-   * Deterministically generates any of the 300 levels on-demand.
-   * Uses seed based on level number to provide stable, reproducible enemy spawns,
-   * smooth difficulty scaling, and thematic world progressions every 50 stages.
+   * Deterministically generates any of the 1020 levels on-demand.
+   * All 1020 stages have full, fully connected platform trees with clear upward paths.
    */
   fun getLevel(levelNumber: Int): LevelConfig {
     val lvl = levelNumber.coerceIn(1, TOTAL_LEVELS)
     val isBoss = (lvl % 10 == 0)
 
-    // World theme (6 worlds, 50 levels each)
-    val worldIndex = ((lvl - 1) / 50).coerceIn(0, 5)
+    // World theme (6 themes rotating every 50 stages)
+    val worldIndex = ((lvl - 1) / 50) % WorldTheme.entries.size
     val theme = if (isBoss) WorldTheme.TITAN_THRONE else WorldTheme.entries[worldIndex]
 
-    // Determine archetype based on level progression:
-    // Boss stages always use the Titan Throne Boss Arena (Screenshot 4)
-    // Stages 1, 11, 21... use Pyramid Sanctum (Screenshot 1)
-    // Stages 2, 12, 22... use Vertical Comb Chutes & Wells (Screenshot 2)
-    // Stages 3, 13, 23... use Octagonal Ring Fortress & Altar (Screenshot 3)
+    // Determine archetype:
+    // Boss stages always use the Titan Throne Arena (Archetype 3)
+    // Other stages cycle deterministically through archetypes 0-9
     val archIndex = if (isBoss) 3 else ((lvl - 1) % 10)
-    val fullArchetypePlatforms = archetypes[archIndex](lvl)
+    // Use the complete, intact archetype with full upward climbing routes
+    val platforms = archetypes[archIndex](lvl)
 
-    // Platform layout scaled with exact obstacle count (5 at level 1 up to 15 at level 300)
-    val targetObstacleCount = (5f + (lvl - 1) * 10f / 299f).roundToInt().coerceIn(5, 15)
-    val platforms = fullArchetypePlatforms.take(targetObstacleCount)
-
-    // Obstacle Hazards (Wall gargoyles that attack, matching user's screenshots)
+    // Obstacle Hazards (Wall gargoyles spitting fireballs)
     val obstacleHazards = mutableListOf<ObstacleHazard>()
     when (archIndex) {
       0 -> {
-        // Pyramid Sanctum: Gargoyles on side wings
+        // Pyramid Sanctum: Side gargoyles
         obstacleHazards.add(
           ObstacleHazard(
             id = 1,
             x = 16f,
-            y = 370f - 26f,
+            y = 380f - 26f,
             colorType = ObstacleColor.GREEN,
             facesRight = true,
             attackTimer = 0.8f,
@@ -425,7 +475,7 @@ object LevelCatalog {
           ObstacleHazard(
             id = 2,
             x = 358f,
-            y = 370f - 26f,
+            y = 380f - 26f,
             colorType = ObstacleColor.BLUE,
             facesRight = false,
             attackTimer = 2.2f,
@@ -437,7 +487,7 @@ object LevelCatalog {
             ObstacleHazard(
               id = 3,
               x = 16f,
-              y = 240f - 26f,
+              y = 220f - 26f,
               colorType = ObstacleColor.RED,
               facesRight = true,
               attackTimer = 1.5f,
@@ -450,7 +500,7 @@ object LevelCatalog {
             ObstacleHazard(
               id = 4,
               x = 358f,
-              y = 240f - 26f,
+              y = 220f - 26f,
               colorType = ObstacleColor.YELLOW,
               facesRight = false,
               attackTimer = 3.0f,
@@ -460,12 +510,12 @@ object LevelCatalog {
         }
       }
       1 -> {
-        // Comb Wells: Gargoyles on lower pits & outer walls
+        // Chutes & Wells: Left and right gargoyles
         obstacleHazards.add(
           ObstacleHazard(
             id = 1,
             x = 16f,
-            y = 350f - 26f,
+            y = 380f - 26f,
             colorType = ObstacleColor.GREEN,
             facesRight = true,
             attackTimer = 1.0f,
@@ -476,21 +526,21 @@ object LevelCatalog {
           ObstacleHazard(
             id = 2,
             x = 358f,
-            y = 350f - 26f,
+            y = 380f - 26f,
             colorType = ObstacleColor.BLUE,
             facesRight = false,
             attackTimer = 2.5f,
             attackInterval = 4.2f
           )
         )
-        if (lvl >= 15) {
+        if (lvl >= 20) {
           obstacleHazards.add(
             ObstacleHazard(
               id = 3,
-              x = 160f,
-              y = 460f - 26f,
+              x = 16f,
+              y = 220f - 26f,
               colorType = ObstacleColor.YELLOW,
-              facesRight = (lvl % 2 == 0),
+              facesRight = true,
               attackTimer = 1.8f,
               attackInterval = 3.8f
             )
@@ -498,12 +548,12 @@ object LevelCatalog {
         }
       }
       2 -> {
-        // Ring Fortress: Gargoyles on outer ramparts
+        // Ring Fortress
         obstacleHazards.add(
           ObstacleHazard(
             id = 1,
             x = 16f,
-            y = 340f - 26f,
+            y = 380f - 26f,
             colorType = ObstacleColor.GREEN,
             facesRight = true,
             attackTimer = 0.9f,
@@ -514,19 +564,19 @@ object LevelCatalog {
           ObstacleHazard(
             id = 2,
             x = 358f,
-            y = 340f - 26f,
+            y = 380f - 26f,
             colorType = ObstacleColor.BLUE,
             facesRight = false,
             attackTimer = 2.4f,
             attackInterval = 4.0f
           )
         )
-        if (lvl >= 15) {
+        if (lvl >= 25) {
           obstacleHazards.add(
             ObstacleHazard(
               id = 3,
               x = 16f,
-              y = 210f - 26f,
+              y = 220f - 26f,
               colorType = ObstacleColor.RED,
               facesRight = true,
               attackTimer = 1.4f,
@@ -541,7 +591,7 @@ object LevelCatalog {
           ObstacleHazard(
             id = 1,
             x = 16f,
-            y = 295f - 26f,
+            y = 380f - 26f,
             colorType = ObstacleColor.GREEN,
             facesRight = true,
             attackTimer = 1.0f,
@@ -552,36 +602,23 @@ object LevelCatalog {
           ObstacleHazard(
             id = 2,
             x = 358f,
-            y = 295f - 26f,
+            y = 380f - 26f,
             colorType = ObstacleColor.BLUE,
             facesRight = false,
             attackTimer = 2.6f,
             attackInterval = 4.2f
           )
         )
-        if (lvl >= 15) {
+        if (lvl >= 30) {
           obstacleHazards.add(
             ObstacleHazard(
               id = 3,
               x = 16f,
-              y = 195f - 26f,
+              y = 220f - 26f,
               colorType = ObstacleColor.RED,
               facesRight = true,
               attackTimer = 1.6f,
               attackInterval = 3.9f
-            )
-          )
-        }
-        if (lvl >= 50) {
-          obstacleHazards.add(
-            ObstacleHazard(
-              id = 4,
-              x = 358f,
-              y = 195f - 26f,
-              colorType = ObstacleColor.YELLOW,
-              facesRight = false,
-              attackTimer = 3.0f,
-              attackInterval = 4.4f
             )
           )
         }
@@ -590,7 +627,7 @@ object LevelCatalog {
 
     // Stage Name Generation
     val name = when {
-      lvl == 300 -> "Omega Core: Supreme Cryo-Titan"
+      lvl == 1020 -> "Omega Core: Supreme Cryo-Titan"
       isBoss -> "${theme.displayName} Core: Titan ${lvl / 10}"
       else -> {
         val prefixes = listOf(
@@ -607,17 +644,16 @@ object LevelCatalog {
       }
     }
 
-    // Generate Enemy Spawns scaled to level
+    // Enemy Spawns scaled to level
     val enemySpawns = mutableListOf<EnemySpawn>()
 
     if (isBoss) {
-      // Boss level
+      // Boss level: Titan + minions
       enemySpawns.add(EnemySpawn(EnemyType.CRYO_TITAN, 160f, 440f))
-      // Minions spawn for snow ammo
       val minionCount = (2 + (lvl / 60)).coerceAtMost(6)
       for (i in 0 until minionCount) {
-        val mx = if (i % 2 == 0) 50f + (i * 20f) else 330f - (i * 20f)
-        val my = if (i < 2) 390f else 180f
+        val mx = if (i % 2 == 0) 50f + (i * 25f) else 330f - (i * 25f)
+        val my = if (i < 2) 410f else 250f
         enemySpawns.add(
           EnemySpawn(
             type = if (i % 3 == 0) EnemyType.SPIKELING else EnemyType.WISP,
@@ -628,65 +664,54 @@ object LevelCatalog {
         )
       }
     } else {
-      // Normal stages: scale from 3 enemies up to 8 enemies gradually
-      val baseCount = 3 + (lvl / 45) // 3 enemies at lvl 1 -> 8 enemies at lvl 250+
+      // Normal stages: scale from 3 up to 8 enemies gradually
+      val baseCount = 3 + (lvl / 45)
       val totalEnemies = baseCount.coerceIn(3, 8)
 
-      // Available spawn tiers based on platforms and archetype
+      // Spawn nodes placed directly on platforms for natural spawning
       val spawnNodes = when (archIndex) {
         0 -> listOf(
-          Pair(95f, 410f),
-          Pair(275f, 410f),
-          Pair(135f, 340f),
-          Pair(235f, 340f),
-          Pair(180f, 200f),
-          Pair(35f, 330f),
-          Pair(345f, 330f),
-          Pair(120f, 100f)
+          Pair(60f, 420f),
+          Pair(200f, 420f),
+          Pair(340f, 420f),
+          Pair(60f, 340f),
+          Pair(200f, 340f),
+          Pair(340f, 340f),
+          Pair(70f, 260f),
+          Pair(200f, 260f)
         )
         1 -> listOf(
-          Pair(85f, 300f),
-          Pair(190f, 300f),
-          Pair(295f, 300f),
-          Pair(50f, 410f),
-          Pair(320f, 410f),
-          Pair(50f, 100f),
-          Pair(150f, 100f),
-          Pair(250f, 100f)
-        )
-        2 -> listOf(
-          Pair(180f, 275f),
-          Pair(35f, 430f),
-          Pair(345f, 430f),
-          Pair(35f, 300f),
-          Pair(345f, 300f),
-          Pair(180f, 160f),
-          Pair(100f, 385f),
-          Pair(270f, 385f)
+          Pair(70f, 420f),
+          Pair(200f, 420f),
+          Platform_Spawn(330f, 420f),
+          Pair(75f, 340f),
+          Pair(200f, 340f),
+          Pair(325f, 340f),
+          Pair(75f, 260f),
+          Pair(200f, 260f)
         )
         else -> listOf(
-          Pair(60f, 400f),
-          Pair(300f, 400f),
-          Pair(170f, 320f),
-          Pair(60f, 250f),
-          Pair(310f, 250f),
-          Pair(180f, 150f),
-          Pair(70f, 80f),
-          Pair(290f, 80f)
+          Pair(70f, 420f),
+          Pair(200f, 420f),
+          Pair(330f, 420f),
+          Pair(80f, 340f),
+          Pair(200f, 340f),
+          Pair(320f, 340f),
+          Pair(80f, 260f),
+          Pair(200f, 260f)
         )
       }
 
       for (i in 0 until totalEnemies) {
         val node = spawnNodes[i % spawnNodes.size]
-        // Vary coordinates slightly with level seed
         val offsetX = ((lvl * 11 + i * 17) % 24) - 12f
         val spawnX = (node.first + offsetX).coerceIn(30f, 350f)
         val spawnY = node.second
 
-        // Enemy type distribution based on progression & archetype
+        // Enemy type progression
         val enemyType = when {
-          archIndex == 2 && i % 2 == 1 -> EnemyType.PHANTOM // Spectral ghosts in Fortress (Screenshot 3)
-          lvl < 5 -> if (archIndex == 0 && i % 2 == 1) EnemyType.SKIMMER else EnemyType.WISP
+          archIndex == 2 && i % 2 == 1 -> EnemyType.PHANTOM
+          lvl < 5 -> if (i % 2 == 1) EnemyType.SKIMMER else EnemyType.WISP
           lvl < 20 -> if (i % 3 == 0) EnemyType.SKIMMER else EnemyType.WISP
           lvl < 50 -> when (i % 3) {
             0 -> EnemyType.WISP
@@ -726,8 +751,5 @@ object LevelCatalog {
     )
   }
 
-  // Pre-cached small list for backward compatibility where a list is expected
-  val levels: List<LevelConfig> by lazy {
-    (1..TOTAL_LEVELS).map { getLevel(it) }
-  }
+  private fun Platform_Spawn(x: Float, y: Float) = Pair(x, y)
 }

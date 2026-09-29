@@ -87,13 +87,12 @@ fun LevelSelectScreen(
   val unlockedLevel = settings?.unlockedLevel ?: 1
   var isTwoPlayerMode by remember { mutableStateOf(settings?.isTwoPlayer ?: false) }
 
-  // Worlds: 6 Worlds x 50 stages = 300 Levels total
-  // Within each world, group into 5 chapters of 10 levels each (or paging)
+  // Worlds: 21 Worlds approx (1020 Levels total)
   var selectedWorldIndex by remember { mutableIntStateOf(0) }
   var selectedPageInWorld by remember { mutableIntStateOf(0) } // 5 pages of 10 levels = 50 levels per world
 
-  val worlds = WorldTheme.entries
-  val currentWorld = worlds[selectedWorldIndex]
+  val totalWorlds = (LevelCatalog.TOTAL_LEVELS + 49) / 50
+  val currentWorld = WorldTheme.entries[selectedWorldIndex % WorldTheme.entries.size]
 
   // Levels for current world page:
   val worldStartLevel = selectedWorldIndex * 50 + 1
@@ -156,7 +155,7 @@ fun LevelSelectScreen(
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace,
-            color = if (unlockedLevel >= 300) ArcadeYellow else NeonCyan
+            color = if (unlockedLevel >= 1020) ArcadeYellow else NeonCyan
           )
         }
 
@@ -233,7 +232,7 @@ fun LevelSelectScreen(
         }
       }
 
-      // World Tab Bar (6 Worlds)
+      // World Tab Bar (21 Worlds)
       ScrollableTabRow(
         selectedTabIndex = selectedWorldIndex,
         containerColor = Color.Transparent,
@@ -250,7 +249,8 @@ fun LevelSelectScreen(
           }
         }
       ) {
-        worlds.forEachIndexed { index, world ->
+        (0 until totalWorlds).forEach { index ->
+          val world = WorldTheme.entries[index % WorldTheme.entries.size]
           val isSelected = (index == selectedWorldIndex)
           Tab(
             selected = isSelected,
@@ -333,8 +333,9 @@ fun LevelSelectScreen(
           }
 
           // Stages range indicator
+          val maxStagesInWorld = if (selectedWorldIndex == totalWorlds - 1) (LevelCatalog.TOTAL_LEVELS % 50).let { if(it == 0) 50 else it } else 50
           Text(
-            text = "L${worldStartLevel} - L${worldStartLevel + 49}",
+            text = "L${worldStartLevel} - L${worldStartLevel + maxStagesInWorld - 1}",
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace,
@@ -366,12 +367,14 @@ fun LevelSelectScreen(
           )
         }
 
-        // Page Indicator Chips (5 pages for 50 levels)
+        // Page Indicator Chips
+        val maxStagesInWorld = if (selectedWorldIndex == totalWorlds - 1) (LevelCatalog.TOTAL_LEVELS % 50).let { if(it == 0) 50 else it } else 50
+        val pagesInWorld = (maxStagesInWorld + 9) / 10
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-          for (p in 0 until 5) {
+          for (p in 0 until pagesInWorld) {
             val isPageSelected = (p == selectedPageInWorld)
             val pStart = worldStartLevel + p * 10
-            val pEnd = pStart + 9
+            val pEnd = (pStart + 9).coerceAtMost(LevelCatalog.TOTAL_LEVELS)
             Box(
               modifier = Modifier
                 .clip(RoundedCornerShape(6.dp))
@@ -391,17 +394,17 @@ fun LevelSelectScreen(
         }
 
         IconButton(
-          onClick = { if (selectedPageInWorld < 4) selectedPageInWorld++ },
-          enabled = selectedPageInWorld < 4,
+          onClick = { if (selectedPageInWorld < pagesInWorld - 1) selectedPageInWorld++ },
+          enabled = selectedPageInWorld < pagesInWorld - 1,
           modifier = Modifier
             .size(36.dp)
-            .background(if (selectedPageInWorld < 4) IceSurface else IceSurface.copy(alpha = 0.3f), CircleShape)
+            .background(if (selectedPageInWorld < pagesInWorld - 1) IceSurface else IceSurface.copy(alpha = 0.3f), CircleShape)
             .testTag("page_next_button")
         ) {
           Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = "Next Stages",
-            tint = if (selectedPageInWorld < 4) NeonCyan else TextMuted.copy(alpha = 0.4f)
+            tint = if (selectedPageInWorld < pagesInWorld - 1) NeonCyan else TextMuted.copy(alpha = 0.4f)
           )
         }
       }
